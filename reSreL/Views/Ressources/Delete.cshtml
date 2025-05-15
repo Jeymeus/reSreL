@@ -1,0 +1,26 @@
+﻿@model reSreL.Models.Ressource
+
+@{
+    ViewData["Title"] = "Supprimer la ressource";
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<h4>Es-tu sûr de vouloir supprimer cette ressource ?</h4>
+
+<div class="border p-3 mb-3">
+    <dl class="row">
+        <dt class="col-sm-2">Nom</dt>
+        <dd class="col-sm-10">@Model.Nom</dd>
+        <dt class="col-sm-2">Type</dt>
+        <dd class="col-sm-10">@Model.Type</dd>
+        <dt class="col-sm-2">Lien</dt>
+        <dd class="col-sm-10"><a href="@Model.Lien" target="_blank">@Model.Lien</a></dd>
+    </dl>
+</div>
+
+<form asp-action="DeleteConfirmed">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+    <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+</form>

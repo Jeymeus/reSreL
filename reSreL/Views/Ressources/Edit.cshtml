@@ -1,0 +1,52 @@
+﻿@model reSreL.Models.Ressource
+@using reSreL.Models
+@{
+    ViewData["Title"] = "Créer une ressource";
+    var allCategories = ViewBag.Categories as List<Categorie>;
+    var selectedIds = Model.Categories?.Select(c => c.Id).ToList() ?? new List<int>();
+}
+
+
+@{
+    ViewData["Title"] = "Modifier la ressource";
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<form asp-action="Edit" class="needs-validation" novalidate>
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label asp-for="Nom" class="form-label"></label>
+        <input asp-for="Nom" class="form-control" />
+        <span asp-validation-for="Nom" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Type" class="form-label"></label>
+        <input asp-for="Type" class="form-control" />
+        <span asp-validation-for="Type" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Lien" class="form-label"></label>
+        <input asp-for="Lien" class="form-control" />
+        <span asp-validation-for="Lien" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Catégories</label>
+        <select asp-for="Categories" name="SelectedCategorieIds" multiple class="form-select">
+            @foreach (var cat in allCategories)
+            {
+                <option value="@cat.Id" selected="@selectedIds.Contains(cat.Id)">
+                    @cat.Nom
+                </option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <a asp-action="Index" class="btn btn-secondary">Retour</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
