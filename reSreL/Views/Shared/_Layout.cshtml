@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
+<<<<<<< Updated upstream
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
@@ -63,13 +64,22 @@
                     </ul>
                 </div>
             </nav>
+=======
+    @await Html.PartialAsync("_Header")
+>>>>>>> Stashed changes
 
-            <!-- Contenu principal -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
-                @RenderBody()
-            </main>
-        </div>
-    </div>
+    @if (User.IsInRole("Admin"))
+    {
+        @await Html.PartialAsync("_NavbarAdmin")
+    }
+    else
+    {
+        @await Html.PartialAsync("_NavbarPublic")
+    }
+
+    <main class="container mt-4">
+        @RenderBody()
+    </main>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @RenderSection("Scripts", required: false)
