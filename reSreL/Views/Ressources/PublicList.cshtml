@@ -1,0 +1,56 @@
+﻿@model IEnumerable<reSreL.Models.Ressource>
+
+@{
+    ViewData["Title"] = "Toutes les ressources";
+}
+
+<h2 class="mb-4">📚 Toutes les ressources</h2>
+
+<form method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-5">
+            <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="🔍 Rechercher une ressource..." />
+        </div>
+        <div class="col-md-4">
+            <select name="categorieId" class="form-select">
+                <option value="">📁 Toutes les catégories</option>
+                @foreach (var cat in ViewBag.Categories as List<reSreL.Models.Categorie>)
+                {
+                    var selectedAttr = ViewBag.CategorieId != null && (int)ViewBag.CategorieId == cat.Id
+                        ? "selected"
+                        : "";
+                    @:<option value="@cat.Id" @selectedAttr>@cat.Nom</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary">Filtrer</button>
+        </div>
+    </div>
+</form>
+
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var ressource in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@ressource.Nom</h5>
+                    <p class="card-text"><strong>Type :</strong> @ressource.Type</p>
+                    <p class="card-text">
+                        <strong>Ajouté par :</strong> @ressource.User?.Prenom @ressource.User?.Nom
+                    </p>
+                    <p>
+                        <strong>Catégories :</strong>
+                        @foreach (var cat in ressource.Categories)
+                        {
+                            <span class="badge bg-primary">@cat.Nom</span>
+                        }
+                    </p>
+                    <a href="@ressource.Lien" class="btn btn-outline-primary" target="_blank">Voir la ressource</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

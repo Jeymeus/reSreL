@@ -38,11 +38,24 @@ namespace reSreL.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Ressource ressource, int[] SelectedCategorieIds)
         {
+            if (SelectedCategorieIds == null || SelectedCategorieIds.Length == 0)
+            {
+                ModelState.AddModelError("Categories", "Veuillez sélectionner au moins une catégorie.");
+            }
+
             if (ModelState.IsValid)
             {
+                // Associer les catégories
                 ressource.Categories = await _context.Categories
                     .Where(c => SelectedCategorieIds.Contains(c.Id))
                     .ToListAsync();
+
+                // Associer l'utilisateur connecté
+                var userEmail = User.Identity?.Name;
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+                if (user == null) return Unauthorized();
+
+                ressource.UserId = user.Id;
 
                 await _ressourceService.CreateAsync(ressource);
                 return RedirectToAction(nameof(Index));
@@ -51,6 +64,7 @@ namespace reSreL.Controllers
             ViewBag.Categories = await _categorieService.GetAllAsync();
             return View(ressource);
         }
+
 
         public async Task<IActionResult> Edit(int id)
         {
@@ -107,5 +121,62 @@ namespace reSreL.Controllers
             var success = await _ressourceService.DeleteAsync(id);
             return success ? RedirectToAction(nameof(Index)) : NotFound();
         }
+
+
+        public async Task<IActionResult> FiltrerParCategorie(int categorieId)
+        {
+            var ressources = await _context.Ressources
+                .Include(r => r.Categories)
+                .Where(r => r.Categories.Any(c => c.Id == categorieId))
+                .ToListAsync();
+
+            ViewBag.Categories = await _categorieService.GetAllAsync();
+            ViewBag.CategorieId = categorieId;
+            return View("Index", ressources);
+        }
+
+
+        public async Task<IActionResult> Filtre(int? categorieId)
+        {
+            var ressources = _context.Ressources.Include(r => r.Categories).AsQueryable();
+
+            if (categorieId.HasValue)
+            {
+                ressources = ressources.Where(r => r.Categories.Any(c => c.Id == categorieId));
+            }
+
+            ViewBag.Categories = await _categorieService.GetAllAsync();
+            ViewBag.SelectedCategorieId = categorieId;
+
+            return View(await ressources.ToListAsync());
+        }
+
+
+        public async Task<IActionResult> PublicList(string? search, int? categorieId)
+        {
+            var ressources = _context.Ressources
+                .Include(r => r.Categories)
+                .Include(r => r.User)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                ressources = ressources.Where(r =>
+                    r.Nom.Contains(search) || r.Type.Contains(search));
+            }
+
+            if (categorieId.HasValue)
+            {
+                ressources = ressources.Where(r => r.Categories.Any(c => c.Id == categorieId));
+            }
+
+            ViewBag.Categories = await _categorieService.GetAllAsync();
+            ViewBag.Search = search;
+            ViewBag.CategorieId = categorieId;
+
+            return View(await ressources.ToListAsync());
+        }
+
+
     }
 }

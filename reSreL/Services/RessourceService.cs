@@ -52,5 +52,14 @@ namespace reSreL.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<Ressource>> GetAllWithCategoriesAndUserAsync()
+        {
+            return await _context.Ressources
+                .Include(r => r.Categories)
+                .Include(r => r.User)
+                .ToListAsync();
+        }
+
     }
 }
