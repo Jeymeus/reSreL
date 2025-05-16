@@ -1,10 +1,50 @@
-﻿<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+﻿@* Assure-toi que ViewBag.Categories et ViewBag.UserId sont définis dans le contrôleur *@
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
     <div class="container-fluid">
-        <div class="collapse navbar-collapse">
+        <a class="navbar-brand" href="/">reSreL</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="/">Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" href="/Ressources">Ressources</a></li>
-                <li class="nav-item"><a class="nav-link" href="/Contact">Contact</a></li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Accueil</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/Categories">Ressources</a>
+                </li>
+
+                @if (ViewBag.Categories != null)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Catégories
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                            @foreach (var categorie in ViewBag.Categories)
+                            {
+                                <li>
+                                    <a class="dropdown-item" href="/Categories/Details/@categorie.Id">
+                                        @categorie.Nom
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                }
+
+                @if (ViewBag.UserId != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Users/Details/@ViewBag.UserId">Profil</a>
+                    </li>
+                }
+
             </ul>
         </div>
     </div>

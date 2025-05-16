@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using reSreL.Data;
 using reSreL.Models;
@@ -19,79 +15,84 @@ namespace reSreL.Controllers
             _context = context;
         }
 
+        private async Task SetSharedViewDataAsync()
+        {
+            ViewBag.Categories = await _context.Categories.ToListAsync();
+
+            if (User.Identity.IsAuthenticated)
+            {
+                ViewBag.UserId = User.FindFirst("UserId")?.Value;
+            }
+        }
+
         // GET: Categories
         public async Task<IActionResult> Index()
         {
+            await SetSharedViewDataAsync();
             return View(await _context.Categories.ToListAsync());
         }
 
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            await SetSharedViewDataAsync();
+
+            if (id == null) return NotFound();
 
             var categorie = await _context.Categories
+                .Include(c => c.Ressources)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (categorie == null)
-            {
-                return NotFound();
-            }
+
+            if (categorie == null) return NotFound();
 
             return View(categorie);
         }
 
         // GET: Categories/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            await SetSharedViewDataAsync();
             return View();
         }
 
         // POST: Categories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Nom")] Categorie categorie)
         {
+            await SetSharedViewDataAsync();
+
             if (ModelState.IsValid)
             {
                 _context.Add(categorie);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(categorie);
         }
 
         // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            await SetSharedViewDataAsync();
+
+            if (id == null) return NotFound();
 
             var categorie = await _context.Categories.FindAsync(id);
-            if (categorie == null)
-            {
-                return NotFound();
-            }
+            if (categorie == null) return NotFound();
+
             return View(categorie);
         }
 
         // POST: Categories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nom")] Categorie categorie)
         {
-            if (id != categorie.Id)
-            {
-                return NotFound();
-            }
+            await SetSharedViewDataAsync();
+
+            if (id != categorie.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -102,34 +103,25 @@ namespace reSreL.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategorieExists(categorie.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!CategorieExists(categorie.Id)) return NotFound();
+                    throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             return View(categorie);
         }
 
         // GET: Categories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            await SetSharedViewDataAsync();
+
+            if (id == null) return NotFound();
 
             var categorie = await _context.Categories
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (categorie == null)
-            {
-                return NotFound();
-            }
+            if (categorie == null) return NotFound();
 
             return View(categorie);
         }
@@ -139,13 +131,15 @@ namespace reSreL.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            await SetSharedViewDataAsync();
+
             var categorie = await _context.Categories.FindAsync(id);
             if (categorie != null)
             {
                 _context.Categories.Remove(categorie);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
