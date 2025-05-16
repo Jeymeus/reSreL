@@ -19,5 +19,10 @@ namespace reSreL.Models
 
         // relation many-to-many
         public List<Categorie> Categories { get; set; } = new();
+
+        [Required]
+        // Lien avec l'utilisateur
+        public int UserId { get; set; } // Clé étrangère
+        public User? User { get; set; }
     }
 }

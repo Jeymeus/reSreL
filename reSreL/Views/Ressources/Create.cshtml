@@ -16,36 +16,44 @@
 
 <h1 class="mb-4">@ViewData["Title"]</h1>
 
-<form asp-action="Create" class="needs-validation" novalidate>
-    <div class="mb-3">
-        <label asp-for="Nom" class="form-label"></label>
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="Nom" class="control-label"></label>
         <input asp-for="Nom" class="form-control" />
         <span asp-validation-for="Nom" class="text-danger"></span>
     </div>
-    <div class="mb-3">
-        <label asp-for="Type" class="form-label"></label>
+
+    <div class="form-group">
+        <label asp-for="Type" class="control-label"></label>
         <input asp-for="Type" class="form-control" />
         <span asp-validation-for="Type" class="text-danger"></span>
     </div>
-    <div class="mb-3">
-        <label asp-for="Lien" class="form-label"></label>
+
+    <div class="form-group">
+        <label asp-for="Lien" class="control-label"></label>
         <input asp-for="Lien" class="form-control" />
         <span asp-validation-for="Lien" class="text-danger"></span>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Catégories</label>
-        <select asp-for="Categories" name="SelectedCategorieIds" multiple class="form-select">
-            @foreach (var cat in allCategories)
-            {
-                <option value="@cat.Id" selected="@selectedIds.Contains(cat.Id)">
-                    @cat.Nom
-                </option>
-            }
-        </select>
+
+    <div class="form-group">
+        <label>Catégories</label><br />
+        @foreach (var cat in (List<reSreL.Models.Categorie>)ViewBag.Categories)
+        {
+            <div class="form-check">
+                <input type="checkbox" name="SelectedCategorieIds" value="@cat.Id" class="form-check-input" />
+                <label class="form-check-label">@cat.Nom</label>
+            </div>
+        }
+        <span asp-validation-for="Categories" class="text-danger"></span>
     </div>
-    <button type="submit" class="btn btn-success">Créer</button>
-    <a asp-action="Index" class="btn btn-secondary">Retour</a>
+
+    <div class="form-group">
+        <input type="submit" value="Ajouter" class="btn btn-primary" />
+    </div>
 </form>
+
 
 @section Scripts {
     @{
