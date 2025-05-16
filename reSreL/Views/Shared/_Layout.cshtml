@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="utf-8" />
@@ -11,7 +15,7 @@
         <div class="row">
             <!-- Sidebar -->
             <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-                <div class="position-sticky pt-3">
+                <div class="position-sticky pt-3 d-flex flex-column justify-content-between h-100">
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="/Users/Create">
@@ -33,7 +37,29 @@
                                 🏷️ Catégories
                             </a>
                         </li>
-                        <!-- autres liens -->
+                    </ul>
+
+                    <!-- Connexion / Déconnexion -->
+                    <ul class="nav flex-column mb-3">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <span class="nav-link disabled">👋 Bonjour, @User.Identity.Name</span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-danger" href="/Users/Logout">
+                                    🚪 Déconnexion
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-primary" href="/Users/Login">
+                                    🔐 Connexion
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </nav>

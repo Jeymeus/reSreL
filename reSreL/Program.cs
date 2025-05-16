@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using reSreL.Data;
 using reSreL.Services;
@@ -18,7 +19,18 @@ builder.Services.AddScoped<CategorieService>();
 // Ajout des contrôleurs + vues (MVC classique)
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Users/Login";
+        options.LogoutPath = "/Users/Logout";
+    });
+
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 
 // Middleware pipeline
 if (!app.Environment.IsDevelopment())

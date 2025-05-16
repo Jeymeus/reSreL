@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("reSreL")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+58b6a8d5152f235aeffb888f3c285d0ef7378226")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+176cc6ad9b56bc05c27fb5334296ec00e143560c")]
 [assembly: System.Reflection.AssemblyProductAttribute("reSreL")]
 [assembly: System.Reflection.AssemblyTitleAttribute("reSreL")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

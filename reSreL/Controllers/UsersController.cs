@@ -2,6 +2,11 @@
 using reSreL.Models;
 using reSreL.Services;
 
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
+
+
 namespace reSreL.Controllers
 {
     public class UsersController : Controller
@@ -78,5 +83,54 @@ namespace reSreL.Controllers
             var success = await _userService.DeleteAsync(id);
             return success ? RedirectToAction(nameof(Index)) : NotFound();
         }
+
+
+        // GET: /Users/Login
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        // POST: /Users/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(string email, string motDePasse)
+        {
+            var user = await _userService.AuthenticateAsync(email, motDePasse);
+
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Identifiants invalides");
+                return View();
+            }
+
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, user.Nom),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim("UserId", user.Id.ToString())
+    };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = true
+            };
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        // GET: /Users/Logout
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login", "Users");
+        }
+
     }
 }
