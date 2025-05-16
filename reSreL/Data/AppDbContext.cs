@@ -13,6 +13,8 @@ namespace reSreL.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Ressource> Ressources { get; set; }
         public DbSet<Categorie> Categories { get; set; }
+        public DbSet<Commentaire> Commentaires { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

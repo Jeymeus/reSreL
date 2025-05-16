@@ -1,0 +1,47 @@
+﻿@model List<reSreL.Models.Commentaire>
+
+@{
+    ViewData["Title"] = "Commentaires à modérer";
+    var commentairesValidés = Model.Where(c => c.Valide).ToList();
+    var commentairesEnAttente = Model.Where(c => !c.Valide).ToList();
+}
+
+<h2>💬 Commentaires</h2>
+
+@if (TempData["MessageValidation"] != null)
+{
+    <div class="alert alert-success">@TempData["MessageValidation"]</div>
+}
+@if (TempData["MessageSuppression"] != null)
+{
+    <div class="alert alert-danger">@TempData["MessageSuppression"]</div>
+}
+
+<ul class="nav nav-pills mb-3" id="commentFilter" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" type="button" role="tab">Tous</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pending-tab" data-bs-toggle="pill" data-bs-target="#pending" type="button" role="tab">⏳ En attente</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="validated-tab" data-bs-toggle="pill" data-bs-target="#validated" type="button" role="tab">✅ Validés</button>
+    </li>
+</ul>
+
+<div class="tab-content" id="commentFilterContent">
+    <!-- Tous -->
+    <div class="tab-pane fade show active" id="all" role="tabpanel">
+        @Html.Partial("_CommentairesTable", Model)
+    </div>
+
+    <!-- En attente -->
+    <div class="tab-pane fade" id="pending" role="tabpanel">
+        @Html.Partial("_CommentairesTable", commentairesEnAttente)
+    </div>
+
+    <!-- Validés -->
+    <div class="tab-pane fade" id="validated" role="tabpanel">
+        @Html.Partial("_CommentairesTable", commentairesValidés)
+    </div>
+</div>
