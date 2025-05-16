@@ -22,7 +22,10 @@
         @await Html.PartialAsync("_NavbarPublic")
     }
 
-    <main class="container mt-4">
+    <main class="container mt-4" style="margin-left:250px;">
+        @RenderBody()
+    </main>
+
         @RenderBody()
     </main>
 

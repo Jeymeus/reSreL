@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using reSreL.Data;
 
@@ -11,9 +12,11 @@ using reSreL.Data;
 namespace reSreL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250516102637_CreateCommentairesTable")]
+    partial class CreateCommentairesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -108,12 +111,7 @@ namespace reSreL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Ressources");
                 });
@@ -169,38 +167,25 @@ namespace reSreL.Migrations
                         .IsRequired();
                 });
 
-// Relation pour Ressource
-modelBuilder.Entity("reSreL.Models.Ressource", b =>
-{
-    b.HasOne("reSreL.Models.User", "User")
-        .WithMany()
-        .HasForeignKey("UserId")
-        .OnDelete(DeleteBehavior.Cascade)
-        .IsRequired();
+            modelBuilder.Entity("reSreL.Models.Commentaire", b =>
+                {
+                    b.HasOne("reSreL.Models.Ressource", "Ressource")
+                        .WithMany()
+                        .HasForeignKey("RessourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-    b.Navigation("User");
-});
+                    b.HasOne("reSreL.Models.User", "Utilisateur")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-// Relation pour Commentaire
-modelBuilder.Entity("reSreL.Models.Commentaire", b =>
-{
-    b.HasOne("reSreL.Models.Ressource", "Ressource")
-        .WithMany()
-        .HasForeignKey("RessourceId")
-        .OnDelete(DeleteBehavior.Cascade)
-        .IsRequired();
+                    b.Navigation("Ressource");
 
-    b.HasOne("reSreL.Models.User", "Utilisateur")
-        .WithMany()
-        .HasForeignKey("UserId")
-        .OnDelete(DeleteBehavior.Cascade)
-        .IsRequired();
-
-    b.Navigation("Ressource");
-    b.Navigation("Utilisateur");
-});
-
-
-b.Navigation("Ressource");
-b.Navigation("Utilisateur");
-
+                    b.Navigation("Utilisateur");
+                });
+#pragma warning restore 612, 618
+        }
+    }
+}

@@ -13,6 +13,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RessourceService>();
 builder.Services.AddScoped<CategorieService>();
+builder.Services.AddScoped<CommentaireService>();
+
 
 
 

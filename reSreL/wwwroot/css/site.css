@@ -85,3 +85,12 @@ button.accept-policy {
     color: #555;
 }
 
+.sidebar {
+    height: 100vh;
+    position: fixed;
+    width: 250px; /* ou 220px, selon ton besoin */
+    overflow-y: auto;
+    background-color: #f8f9fa; /* optionnel */
+    border-right: 1px solid #dee2e6;
+    z-index: 1000;
+}
