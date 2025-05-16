@@ -11,62 +11,7 @@
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
-<<<<<<< Updated upstream
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-                <div class="position-sticky pt-3 d-flex flex-column justify-content-between h-100">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Users/Create">
-                                ➕ Créer un compte
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Users">
-                                👤 Utilisateurs
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Ressources">
-                                📚 Ressources
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Categories">
-                                🏷️ Catégories
-                            </a>
-                        </li>
-                    </ul>
-
-                    <!-- Connexion / Déconnexion -->
-                    <ul class="nav flex-column mb-3">
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <span class="nav-link disabled">👋 Bonjour, @User.Identity.Name</span>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-danger" href="/Users/Logout">
-                                    🚪 Déconnexion
-                                </a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-primary" href="/Users/Login">
-                                    🔐 Connexion
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </nav>
-=======
     @await Html.PartialAsync("_Header")
->>>>>>> Stashed changes
 
     @if (User.IsInRole("Admin"))
     {
