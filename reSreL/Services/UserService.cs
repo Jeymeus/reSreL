@@ -50,10 +50,12 @@ namespace reSreL.Services
             user.Email = updatedUser.Email;
             user.MotDePasse = updatedUser.MotDePasse;
             user.Actif = updatedUser.Actif;
+            user.Role = updatedUser.Role; // ← ajouté
 
             await _context.SaveChangesAsync();
             return true;
         }
+
 
         public async Task<User?> AuthenticateAsync(string email, string motDePasse)
         {
