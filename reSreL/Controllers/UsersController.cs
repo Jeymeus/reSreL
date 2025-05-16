@@ -39,7 +39,7 @@ namespace reSreL.Controllers
             if (ModelState.IsValid)
             {
                 await _userService.CreateAsync(user);
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Login));
             }
 
             return View(user);

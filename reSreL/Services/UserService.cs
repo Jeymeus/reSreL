@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using reSreL.Data;
 using reSreL.Models;
 
@@ -7,10 +8,12 @@ namespace reSreL.Services
     public class UserService
     {
         private readonly AppDbContext _context;
+        private readonly PasswordHasher<User> _passwordHasher;
 
         public UserService(AppDbContext context)
         {
             _context = context;
+            _passwordHasher = new PasswordHasher<User>();
         }
 
         public async Task<List<User>> GetAllAsync()
@@ -25,6 +28,7 @@ namespace reSreL.Services
 
         public async Task<User> CreateAsync(User user)
         {
+            user.MotDePasse = _passwordHasher.HashPassword(user, user.MotDePasse);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return user;
@@ -48,20 +52,27 @@ namespace reSreL.Services
             user.Nom = updatedUser.Nom;
             user.Prenom = updatedUser.Prenom;
             user.Email = updatedUser.Email;
-            user.MotDePasse = updatedUser.MotDePasse;
+
+            // Hache le mot de passe si non vide
+            if (!string.IsNullOrWhiteSpace(updatedUser.MotDePasse))
+            {
+                user.MotDePasse = _passwordHasher.HashPassword(user, updatedUser.MotDePasse);
+            }
+
             user.Actif = updatedUser.Actif;
-            user.Role = updatedUser.Role; // ← ajouté
+            user.Role = updatedUser.Role;
 
             await _context.SaveChangesAsync();
             return true;
         }
 
-
         public async Task<User?> AuthenticateAsync(string email, string motDePasse)
         {
-            return await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email && u.MotDePasse == motDePasse && u.Actif);
-        }
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.Actif);
+            if (user == null) return null;
 
+            var result = _passwordHasher.VerifyHashedPassword(user, user.MotDePasse, motDePasse);
+            return result == PasswordVerificationResult.Success ? user : null;
+        }
     }
 }

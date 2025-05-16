@@ -31,7 +31,7 @@ namespace reSreL.Data
                 .HasOne(r => r.User)
                 .WithMany() // ou .WithMany(u => u.Ressources) si tu ajoutes la collection côté User
                 .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Cascade); // ou Restrict si tu préfères empêcher la suppression
+                .OnDelete(DeleteBehavior.Restrict); // ou Restrict si tu préfères empêcher la suppression
         }
     }
 }

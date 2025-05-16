@@ -169,38 +169,36 @@ namespace reSreL.Migrations
                         .IsRequired();
                 });
 
-// Relation pour Ressource
-modelBuilder.Entity("reSreL.Models.Ressource", b =>
-{
-    b.HasOne("reSreL.Models.User", "User")
-        .WithMany()
-        .HasForeignKey("UserId")
-        .OnDelete(DeleteBehavior.Cascade)
-        .IsRequired();
+            modelBuilder.Entity("reSreL.Models.Commentaire", b =>
+                {
+                    b.HasOne("reSreL.Models.Ressource", "Ressource")
+                        .WithMany()
+                        .HasForeignKey("RessourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-    b.Navigation("User");
-});
+                    b.HasOne("reSreL.Models.User", "Utilisateur")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-// Relation pour Commentaire
-modelBuilder.Entity("reSreL.Models.Commentaire", b =>
-{
-    b.HasOne("reSreL.Models.Ressource", "Ressource")
-        .WithMany()
-        .HasForeignKey("RessourceId")
-        .OnDelete(DeleteBehavior.Cascade)
-        .IsRequired();
+                    b.Navigation("Ressource");
 
-    b.HasOne("reSreL.Models.User", "Utilisateur")
-        .WithMany()
-        .HasForeignKey("UserId")
-        .OnDelete(DeleteBehavior.Cascade)
-        .IsRequired();
+                    b.Navigation("Utilisateur");
+                });
 
-    b.Navigation("Ressource");
-    b.Navigation("Utilisateur");
-});
+            modelBuilder.Entity("reSreL.Models.Ressource", b =>
+                {
+                    b.HasOne("reSreL.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-
-b.Navigation("Ressource");
-b.Navigation("Utilisateur");
-
+                    b.Navigation("User");
+                });
+#pragma warning restore 612, 618
+        }
+    }
+}
