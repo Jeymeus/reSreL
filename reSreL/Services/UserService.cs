@@ -54,5 +54,12 @@ namespace reSreL.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<User?> AuthenticateAsync(string email, string motDePasse)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email && u.MotDePasse == motDePasse && u.Actif);
+        }
+
     }
 }

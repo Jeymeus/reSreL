@@ -1,3 +1,34 @@
+# Dossiers Visual Studio
 .vs/
+*.user
+*.suo
+
+# Build results
 bin/
 obj/
+
+# Fichiers de log, temporaires, etc.
+*.log
+*.tmp
+
+# Configuration utilisateur
+*.userprefs
+*.csproj.user
+
+# Fichiers secrets (si utilisés)
+secrets.json
+
+# Dotnet tools
+tools/
+
+# Dossiers de publication
+publish/
+out/
+
+# Mac/Linux
+.DS_Store
+*.swp
+
+# Windows
+Thumbs.db
+desktop.ini
