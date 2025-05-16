@@ -105,11 +105,13 @@ namespace reSreL.Controllers
             }
 
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, user.Nom),
-        new Claim(ClaimTypes.Email, user.Email),
-        new Claim("UserId", user.Id.ToString())
-    };
+            {
+                new Claim(ClaimTypes.Name, user.Nom),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("UserId", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role) // ← ajoute cette ligne
+            };
+
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var authProperties = new AuthenticationProperties

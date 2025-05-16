@@ -20,5 +20,9 @@ namespace reSreL.Models
         public string MotDePasse { get; set; } = string.Empty;
 
         public bool Actif { get; set; } = true;
+
+        [Required]
+        public string Role { get; set; } = "User"; // ou "Admin" par défaut
+
     }
 }

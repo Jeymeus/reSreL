@@ -13,7 +13,7 @@
 <body>
     @await Html.PartialAsync("_Header")
 
-    @if (User.IsInRole("Admin"))
+    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
     {
         @await Html.PartialAsync("_NavbarAdmin")
     }
