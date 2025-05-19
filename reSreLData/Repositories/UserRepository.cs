@@ -10,6 +10,8 @@ namespace reSreLData.Repositories
         private readonly AppDbContext _context;
         private readonly PasswordHasher<User> _passwordHasher;
 
+
+
         public UserRepository(AppDbContext context)
         {
             _context = context;
