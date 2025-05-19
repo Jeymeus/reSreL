@@ -5,9 +5,9 @@
 }
 
 <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div class="d-flex justify-content-start align-items-center mb-4  gap-2">
         <h2 class="mb-0">@ViewData["Title"]</h2>
-        <a asp-action="Create" class="btn btn-primary">➕ Ajouter une catégorie</a>
+        <a asp-action="Create" class="btn btn-success btn-sm">➕ Ajouter</a>
     </div>
 
     @if (!Model.Any())
@@ -16,12 +16,12 @@
     }
     else
     {
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered align-middle">
+        <div class="custom-table-wrapper">
+            <table class="table table-striped table-bordered align-middle w-auto">
                 <thead class="table-dark">
                     <tr>
                         <th scope="col">📁 Nom</th>
-                        <th scope="col" style="width: 150px;">⚙️ Actions</th>
+                        <th scope="col" style="width: 150px;" class="text-center">⚙️ Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,8 +30,7 @@
                         <tr>
                             <td>@item.Nom</td>
                             <td>
-                                <div class="d-flex gap-2">
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">👁 Voir</a>
+                                <div class="text-center">
                                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">🗑 Supprimer</a>
                                 </div>
                             </td>
