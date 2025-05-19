@@ -1,0 +1,28 @@
+﻿@model IEnumerable<reSreLData.Models.Categorie>
+
+@{
+    ViewData["Title"] = "📁 Toutes les catégories";
+}
+
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var categorie in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">🏷️ @categorie.Nom</h5>
+                    <p class="card-text text-muted">Consultez les ressources associées à cette catégorie.</p>
+
+                    <a asp-controller="Categories"
+                       asp-action="Details"
+                       asp-route-id="@categorie.Id"
+                       class="btn btn-outline-primary btn-sm">
+                        🔍 Voir les ressources
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

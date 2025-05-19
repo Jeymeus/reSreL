@@ -1,10 +1,13 @@
 ﻿@model reSreLData.Models.Ressource
-
+@using System.Security.Claims
+@using reSreLData.Models
 @{
     ViewData["Title"] = "Détails de la ressource";
+    var commentaires = ViewBag.Commentaires as List<Commentaire>;
 }
 
 <div class="container mt-5">
+    <!-- Carte de la ressource -->
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0"><i class="bi bi-info-circle"></i> Détails de la ressource</h4>
@@ -32,10 +35,68 @@
                     ✏️ Modifier
                 </a>
             }
-
             <a asp-action="PublicList" class="btn btn-secondary">
                 ⬅️ Retour à la liste
             </a>
         </div>
     </div>
+    <!-- Liste des commentaires validés -->
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-chat-dots"></i> Commentaires</h5>
+        </div>
+        @if (commentaires != null && commentaires.Any())
+        {
+            <ul class="list-group list-group-flush">
+                @foreach (var com in commentaires)
+                {
+                    <li class="list-group-item">
+                        <p class="mb-1">
+                            <strong>@com.Utilisateur?.Prenom @com.Utilisateur?.Nom</strong>
+                            <span class="text-muted small">— @com.DateCreation.ToString("dd/MM/yyyy HH:mm")</span>
+                        </p>
+                        <p class="mb-0">@com.Contenu</p>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="card-body text-muted">
+                Aucun commentaire pour le moment.
+            </div>
+        }
+    </div>
+    <!-- Formulaire de commentaire -->
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="card mt-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="bi bi-chat-left-text"></i> Ajouter un commentaire</h5>
+            </div>
+            <div class="card-body">
+                @if (TempData["ErreurCommentaire"] != null)
+                {
+                    <div class="alert alert-danger">@TempData["ErreurCommentaire"]</div>
+                }
+
+                <form asp-controller="Commentaires" asp-action="Create" method="post">
+                    <input type="hidden" name="ressourceId" value="@Model.Id" />
+                    <div class="mb-3">
+                        <label for="contenu" class="form-label">Votre message :</label>
+                        <textarea class="form-control" id="contenu" name="contenu" rows="3" maxlength="300" required></textarea>
+                        <small class="form-text text-muted">Maximum 300 caractères</small>
+                    </div>
+                    <button type="submit" class="btn btn-success">💬 Soumettre</button>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info mt-4">
+            🔐 Connectez-vous pour ajouter un commentaire.
+        </div>
+    }
+
 </div>

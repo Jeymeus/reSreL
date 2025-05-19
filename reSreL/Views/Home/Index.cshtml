@@ -1,8 +1,42 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Accueil - reSreL";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-3 fw-bold text-primary">Bienvenue sur <span class="text-dark">reSreL</span></h1>
+        <p class="lead text-muted">Une plateforme collaborative pour gérer et partager vos ressources efficacement.</p>
+        <a href="/Ressources/PublicList" class="btn btn-primary btn-lg mt-3">
+            🔍 Explorer les ressources
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">📦 Ressources</h5>
+                    <p class="card-text">Accédez à une base de ressources variées et documentées, partagées par les utilisateurs.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">🏷️ Catégories</h5>
+                    <p class="card-text">Parcourez les ressources par thématique pour trouver plus rapidement ce dont vous avez besoin.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">👥 Communauté</h5>
+                    <p class="card-text">Partagez, commentez et interagissez avec les autres utilisateurs pour enrichir la plateforme.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

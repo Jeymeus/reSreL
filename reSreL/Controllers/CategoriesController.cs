@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using reSreLData.Data;
 using reSreLData.Models;
@@ -30,6 +31,19 @@ namespace reSreL.Controllers
             await SetSharedViewDataAsync();
             return View(await _context.Categories.ToListAsync());
         }
+
+        // GET: Categories/PublicList
+        [HttpGet]
+        [AllowAnonymous] // facultatif si tout est public
+        public async Task<IActionResult> PublicList()
+        {
+            var categories = await _context.Categories
+                .Include(c => c.Ressources) // facultatif, si tu veux aussi les ressources
+                .ToListAsync();
+
+            return View(categories);
+        }
+
 
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(int? id)
