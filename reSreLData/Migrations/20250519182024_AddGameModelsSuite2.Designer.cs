@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using reSreLData.Data;
 
@@ -11,9 +12,11 @@ using reSreLData.Data;
 namespace reSreLData.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250519182024_AddGameModelsSuite2")]
+    partial class AddGameModelsSuite2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -105,9 +108,6 @@ namespace reSreLData.Migrations
                     b.Property<int?>("OpponentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("RessourceId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -117,9 +117,6 @@ namespace reSreLData.Migrations
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("OpponentId");
-
-                    b.HasIndex("RessourceId")
-                        .IsUnique();
 
                     b.ToTable("Games");
                 });
@@ -269,17 +266,9 @@ namespace reSreLData.Migrations
                         .HasForeignKey("OpponentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("reSreLData.Models.Ressource", "Ressource")
-                        .WithOne()
-                        .HasForeignKey("reSreLData.Models.Game", "RessourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Opponent");
-
-                    b.Navigation("Ressource");
                 });
 
             modelBuilder.Entity("reSreLData.Models.Move", b =>

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using reSreLData.Data;
 
@@ -11,9 +12,11 @@ using reSreLData.Data;
 namespace reSreLData.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250519174223_initial")]
+    partial class initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -86,74 +89,6 @@ namespace reSreLData.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Commentaires");
-                });
-
-            modelBuilder.Entity("reSreLData.Models.Game", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedById")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("OpponentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RessourceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("OpponentId");
-
-                    b.HasIndex("RessourceId")
-                        .IsUnique();
-
-                    b.ToTable("Games");
-                });
-
-            modelBuilder.Entity("reSreLData.Models.Move", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("GameId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("PlayedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PlayedById")
-                        .HasColumnType("int");
-
-                    b.Property<int>("X")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Y")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameId");
-
-                    b.HasIndex("PlayedById");
-
-                    b.ToTable("Moves");
                 });
 
             modelBuilder.Entity("reSreLData.Models.Ressource", b =>
@@ -256,51 +191,6 @@ namespace reSreLData.Migrations
                     b.Navigation("Utilisateur");
                 });
 
-            modelBuilder.Entity("reSreLData.Models.Game", b =>
-                {
-                    b.HasOne("reSreLData.Models.User", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("reSreLData.Models.User", "Opponent")
-                        .WithMany()
-                        .HasForeignKey("OpponentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("reSreLData.Models.Ressource", "Ressource")
-                        .WithOne()
-                        .HasForeignKey("reSreLData.Models.Game", "RessourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Opponent");
-
-                    b.Navigation("Ressource");
-                });
-
-            modelBuilder.Entity("reSreLData.Models.Move", b =>
-                {
-                    b.HasOne("reSreLData.Models.Game", "Game")
-                        .WithMany("Moves")
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("reSreLData.Models.User", "PlayedBy")
-                        .WithMany()
-                        .HasForeignKey("PlayedById")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Game");
-
-                    b.Navigation("PlayedBy");
-                });
-
             modelBuilder.Entity("reSreLData.Models.Ressource", b =>
                 {
                     b.HasOne("reSreLData.Models.User", "User")
@@ -310,11 +200,6 @@ namespace reSreLData.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("reSreLData.Models.Game", b =>
-                {
-                    b.Navigation("Moves");
                 });
 #pragma warning restore 612, 618
         }

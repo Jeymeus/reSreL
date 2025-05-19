@@ -40,15 +40,30 @@ namespace reSreL.Controllers
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (ressource == null) return NotFound();
-            var currentUserEmail = User.FindFirstValue(ClaimTypes.Email);
-            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == currentUserEmail);
+
             var commentaires = await _commentaireRepository.GetByRessourceIdValidOnlyAsync(id);
 
             ViewBag.Commentaires = commentaires;
-            ViewBag.CanEdit = User.IsInRole("Admin") || (currentUser != null && ressource.UserId == currentUser.Id);
 
-            return View(ressource);
+            // Si c'est une activité, charger le Game associé
+            bool isActivite = ressource.Categories.Any(c => c.Nom.ToLower() == "activité");
+
+            if (isActivite)
+            {
+                var game = await _context.Games
+                    .Include(g => g.CreatedBy)
+                    .Include(g => g.Opponent)
+                    .Include(g => g.Moves)
+                    .FirstOrDefaultAsync(g => g.RessourceId == ressource.Id);
+
+                ViewBag.Game = game;
+                return View("DetailActivite", ressource);
+            }
+
+            return View(ressource); // vue par défaut (Detail.cshtml)
         }
+
+
 
 
         public async Task<IActionResult> Create()
@@ -233,6 +248,44 @@ namespace reSreL.Controllers
             ViewBag.CategorieId = categorieId;
 
             return View(await ressources.ToListAsync());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InitialiserPartieAjax(int ressourceId)
+        {
+            var currentUserEmail = User.FindFirstValue(ClaimTypes.Email);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == currentUserEmail);
+
+            if (user == null)
+                return Json(new { success = false, message = "Utilisateur non connecté." });
+
+            var existingGame = await _context.Games
+                .FirstOrDefaultAsync(g => g.CreatedById == user.Id);
+
+            if (existingGame != null)
+                return Json(new { success = true, game = existingGame });
+
+            var newGame = new Game
+            {
+                CreatedById = user.Id,
+                Status = "En attente",
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Games.Add(newGame);
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                game = new
+                {
+                    id = newGame.Id,
+                    status = newGame.Status,
+                    createdAt = newGame.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                }
+
+            });
         }
 
 
