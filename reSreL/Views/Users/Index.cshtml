@@ -85,10 +85,16 @@
 
 @section Scripts {
     <script>
-        document.querySelectorAll('.toggle-actif').forEach(toggle => {
+                document.querySelectorAll('.toggle-actif').forEach(toggle => {
             toggle.addEventListener('change', async function () {
                 const userId = this.dataset.id;
                 const token = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]').value;
+                const badge = document.getElementById(`statut-${userId}`);
+                const originalState = this.checked;
+
+                // Optimiste : feedback immédiat
+                badge.textContent = "⏳ ...";
+                badge.className = "badge bg-warning text-dark";
 
                 try {
                     const response = await fetch(`/Users/ToggleActif?id=${userId}`, {
@@ -101,21 +107,19 @@
                     const result = await response.json();
 
                     if (!response.ok || !('actif' in result)) {
-                        alert("❌ Erreur lors du changement de statut.");
-                        this.checked = !this.checked;
-                        return;
+                        throw new Error("Réponse invalide");
                     }
 
-                    // Mise à jour dynamique du badge
-                    const badge = document.getElementById(`statut-${userId}`);
                     badge.textContent = result.actif ? "Actif" : "Inactif";
                     badge.className = "badge " + (result.actif ? "bg-success" : "bg-secondary");
-
                 } catch (err) {
-                    alert("⚠️ Erreur réseau.");
-                    this.checked = !this.checked;
+                    alert("❌ Une erreur est survenue. Veuillez réessayer.");
+                    this.checked = !originalState;
+                    badge.textContent = originalState ? "Actif" : "Inactif";
+                    badge.className = "badge " + (originalState ? "bg-success" : "bg-secondary");
                 }
             });
         });
+
     </script>
 }

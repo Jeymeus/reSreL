@@ -4,63 +4,69 @@
     ViewData["Title"] = "🗑️ Supprimer une catégorie";
 }
 
-<div class="container mt-4">
-    <div class="card shadow p-4">
-        <h2 class="mb-4 text-danger">@ViewData["Title"]</h2>
-
-        <!-- Message d'erreur -->
-        @if (TempData["DeleteError"] != null)
-        {
-            <div class="alert alert-danger">
-                @TempData["DeleteError"]
-            </div>
-        }
-
-        <!-- Résumé -->
-        <h5>Souhaitez-vous vraiment supprimer cette catégorie ?</h5>
-        <div class="border rounded p-3 mb-3 bg-light">
-            <dl class="row mb-0">
-                <dt class="col-sm-3">📁 Nom de la catégorie</dt>
-                <dd class="col-sm-9">@Model.Nom</dd>
-            </dl>
-        </div>
-
-        <!-- Ressources liées -->
-        @if (Model.Ressources != null && Model.Ressources.Any())
-        {
-            <div class="alert alert-warning">
-                <strong>⚠️ Ressources liées à cette catégorie :</strong>
-                <ul class="mb-0">
-                    @foreach (var res in Model.Ressources)
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Message d'erreur -->
+                    @if (TempData["DeleteError"] != null)
                     {
-                        <li>
-                            @res.Nom
-                            <!-- Formulaire de suppression de la ressource -->
-                            <form asp-controller="Ressources"
-                                  asp-action="Delete"
-                                  asp-route-id="@res.Id"
-                                  asp-route-returnToCategorieId="@Model.Id"
-                                  method="post"
-                                  class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <button type="submit"
-                                        class="btn btn-sm btn-outline-danger ms-2"
-                                        onclick="return confirm('Supprimer la ressource @res.Nom ?')">
-                                    🗑️ Supprimer
-                                </button>
-                            </form>
-                        </li>
+                        <div class="alert alert-danger">
+                            @TempData["DeleteError"]
+                        </div>
                     }
-                </ul>
-            </div>
-        }
 
-        <!-- Formulaire de suppression de la catégorie -->
-        <form asp-action="Delete" method="post" class="mt-4">
-            @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="Id" />
-            <button type="submit" class="btn btn-danger">🗑️ Supprimer définitivement la catégorie</button>
-            <a asp-action="Index" class="btn btn-secondary ms-2">↩️ Annuler</a>
-        </form>
+                    <!-- Résumé -->
+                    <p class="mb-3">Souhaitez-vous vraiment supprimer cette catégorie ?</p>
+                    <div class="border rounded p-3 mb-4 bg-light">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">📁 Nom de la catégorie</dt>
+                            <dd class="col-sm-8">@Model.Nom</dd>
+                        </dl>
+                    </div>
+
+                    <!-- Ressources liées -->
+                    @if (Model.Ressources != null && Model.Ressources.Any())
+                    {
+                        <div class="alert alert-warning">
+                            <strong>⚠️ Ressources liées à cette catégorie :</strong>
+                            <ul class="mb-0">
+                                @foreach (var res in Model.Ressources)
+                                {
+                                    <li class="mb-2">
+                                        @res.Nom
+                                        <form asp-controller="Ressources"
+                                              asp-action="Delete"
+                                              asp-route-id="@res.Id"
+                                              asp-route-returnToCategorieId="@Model.Id"
+                                              method="post"
+                                              class="d-inline ms-2">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Supprimer la ressource @res.Nom ?')">
+                                                🗑️ Supprimer
+                                            </button>
+                                        </form>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <!-- Formulaire de suppression -->
+                    <form asp-action="Delete" method="post" class="mt-4 d-flex flex-wrap gap-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger">🗑️ Supprimer définitivement</button>
+                        <a asp-action="Index" class="btn btn-secondary">↩️ Annuler</a>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

@@ -4,44 +4,50 @@
     ViewData["Title"] = "🗑️ Supprimer la ressource";
 }
 
-<h2 class="mb-4 text-danger"><i class="bi bi-trash-fill"></i> @ViewData["Title"]</h2>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <h2 class="mb-4 text-danger">
+                <i class="bi bi-trash-fill"></i> @ViewData["Title"]
+            </h2>
 
-<div class="alert alert-warning" role="alert">
-    <strong>Attention !</strong> Cette action est <span class="text-danger">irréversible</span>.
-</div>
+            <div class="alert alert-warning" role="alert">
+                <strong>⚠️ Attention !</strong> Cette action est <span class="text-danger fw-bold">irréversible</span>.
+            </div>
 
-<div class="card border-danger mb-4">
-    <div class="card-header bg-danger text-white">
-        Détails de la ressource à supprimer
-    </div>
-    <div class="card-body">
-        <dl class="row">
-            <dt class="col-sm-3">📄 Nom</dt>
-            <dd class="col-sm-9">@Model.Nom</dd>
+            <div class="card border-danger mb-4 shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    📄 Détails de la ressource à supprimer
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">📌 Nom</dt>
+                        <dd class="col-sm-8">@Model.Nom</dd>
 
-            <dt class="col-sm-3">📁 Type</dt>
-            <dd class="col-sm-9">@Model.Type</dd>
+                        <dt class="col-sm-4">📁 Type</dt>
+                        <dd class="col-sm-8">@Model.Type</dd>
 
-            <dt class="col-sm-3">🔗 Lien</dt>
-            <dd class="col-sm-9">
-                <a href="@Model.Lien" target="_blank" class="btn btn-outline-info btn-sm">
-                    🌐 Voir la ressource
+                        <dt class="col-sm-4">🔗 Lien</dt>
+                        <dd class="col-sm-8">
+                            <a href="@Model.Lien" target="_blank" class="btn btn-outline-info btn-sm mb-1">
+                                🌐 Voir la ressource
+                            </a>
+                            <div class="text-muted small">@Model.Lien</div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <form asp-action="Delete" method="post" class="d-flex justify-content-between flex-wrap gap-2">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-check-circle-fill"></i> Oui, supprimer
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-x-circle-fill"></i> Annuler
                 </a>
-                <div class="mt-1 text-muted small">@Model.Lien</div>
-            </dd>
-        </dl>
+            </form>
+        </div>
     </div>
 </div>
-
-<form asp-action="Delete" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Id" />
-    <div class="d-flex justify-content-between">
-        <button type="submit" class="btn btn-danger">
-            <i class="bi bi-check-circle-fill"></i> Oui, supprimer
-        </button>
-        <a asp-action="Index" class="btn btn-secondary">
-            <i class="bi bi-x-circle-fill"></i> Annuler
-        </a>
-    </div>
-</form>

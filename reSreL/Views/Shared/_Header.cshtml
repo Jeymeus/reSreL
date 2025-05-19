@@ -1,17 +1,21 @@
 ﻿@using System.Security.Claims
 
-<header class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom shadow-sm bg-white">
-    <a href="/" class="navbar-brand fw-bold fs-4 text-dark">reSreL</a>
+<header class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom shadow-sm bg-white sticky-top">
+    <!-- Logo / Nom de l'app -->
+    <a href="/" class="navbar-brand fw-bold fs-4 text-dark text-decoration-none">
+        <i class="bi bi-box-seam me-2"></i> reSreL
+    </a>
 
-    <div>
+    <!-- Zone utilisateur -->
+    <div class="d-flex align-items-center gap-3 flex-wrap">
         @if (User.Identity.IsAuthenticated)
         {
-            <span class="me-3">👋 Bonjour, @User.Identity.Name</span>
-            <a class="btn btn-outline-danger" href="/Users/Logout">Déconnexion</a>
+            <span class="text-muted">👋 Bonjour, <strong>@User.Identity.Name</strong></span>
+            <a class="btn btn-outline-danger btn-sm" href="/Users/Logout">Déconnexion</a>
         }
         else
         {
-            <a class="btn btn-outline-primary" href="/Users/Login">Connexion</a>
+            <a class="btn btn-outline-primary btn-sm" href="/Users/Login">Connexion</a>
         }
     </div>
 </header>

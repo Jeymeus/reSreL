@@ -3,56 +3,68 @@
 
 @{
     ViewData["Title"] = "Modifier la ressource";
-    var allCategories = ViewBag.Categories as List<Categorie>;
+    var allCategories = ViewBag.Categories as List<Categorie> ?? new List<Categorie>();
     var selectedIds = ViewBag.SelectedCategorieIds as int[] ?? new int[0];
 }
 
-<div class="container mt-4">
-    <div class="card shadow p-4">
-        <h2 class="mb-4 text-primary">✏️ @ViewData["Title"]</h2>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">✏️ @ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" class="needs-validation" novalidate>
+                        <input type="hidden" name="source" value="@ViewBag.Source" />
+                        <input type="hidden" asp-for="Id" />
 
-        <!-- Formulaire d'édition -->
-        <form asp-action="Edit" method="post" class="needs-validation" novalidate>
-            <input type="hidden" name="source" value="@ViewBag.Source" />
-            <input type="hidden" asp-for="Id" />
+                        <!-- Nom -->
+                        <div class="mb-3">
+                            <label asp-for="Nom" class="form-label">Nom</label>
+                            <input asp-for="Nom" class="form-control" />
+                            <span asp-validation-for="Nom" class="text-danger"></span>
+                        </div>
 
-            <div class="mb-3">
-                <label asp-for="Nom" class="form-label">Nom</label>
-                <input asp-for="Nom" class="form-control" />
-                <span asp-validation-for="Nom" class="text-danger"></span>
-            </div>
+                        <!-- Type -->
+                        <div class="mb-3">
+                            <label asp-for="Type" class="form-label">Type</label>
+                            <input asp-for="Type" class="form-control" />
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
 
-            <div class="mb-3">
-                <label asp-for="Type" class="form-label">Type</label>
-                <input asp-for="Type" class="form-control" />
-                <span asp-validation-for="Type" class="text-danger"></span>
-            </div>
+                        <!-- Lien -->
+                        <div class="mb-3">
+                            <label asp-for="Lien" class="form-label">Lien</label>
+                            <input asp-for="Lien" class="form-control" />
+                            <span asp-validation-for="Lien" class="text-danger"></span>
+                        </div>
 
-            <div class="mb-3">
-                <label asp-for="Lien" class="form-label">Lien</label>
-                <input asp-for="Lien" class="form-control" />
-                <span asp-validation-for="Lien" class="text-danger"></span>
-            </div>
+                        <!-- Catégories -->
+                        <div class="mb-3">
+                            <label class="form-label">Catégorie</label>
+                            <select name="SelectedCategorieIds" class="form-select">
+                                <option disabled selected>-- Sélectionnez une catégorie --</option>
+                                @foreach (var cat in allCategories)
+                                {
+                                    <option value="@cat.Id" selected="@(selectedIds.Contains(cat.Id))">@cat.Nom</option>
+                                }
+                            </select>
+                        </div>
 
-            <div class="mb-3">
-                <label class="form-label">Catégorie</label>
-                <select name="SelectedCategorieIds" class="form-select">
-                    <option disabled>-- Sélectionnez une catégorie --</option>
-                    @foreach (var cat in allCategories)
-                    {
-                        <option value="@cat.Id" selected="@(selectedIds.Contains(cat.Id))">@cat.Nom</option>
-                    }
-                </select>
-            </div>
-
-            <!-- Boutons d'action -->
-            <div class="d-flex justify-content-between align-items-center mt-4">
-                <div>
-                    <button type="submit" class="btn btn-success">💾 Enregistrer</button>
-                    <a asp-action="@ViewBag.Source" asp-route-id="@Model.Id" class="btn btn-secondary ms-2">↩️ Retour</a>
+                        <!-- Boutons -->
+                        <div class="d-flex justify-content-between flex-wrap gap-2 mt-4">
+                            <a asp-action="@ViewBag.Source" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                ↩️ Retour
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                💾 Enregistrer
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 

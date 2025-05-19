@@ -2,30 +2,54 @@
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
 
+@{
+    var isAdmin = User.Identity.IsAuthenticated && User.IsInRole("Admin");
+}
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] - reSreL</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
+    <!-- Header -->
     @await Html.PartialAsync("_Header")
 
-    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+    <!-- Navigation -->
+    @if (isAdmin)
     {
-        @await Html.PartialAsync("_NavbarAdmin")
+        <!-- 🖥️ Desktop : sidebar -->
+        <div class="d-none d-md-flex">
+            @await Html.PartialAsync("_NavbarAdmin")
+
+            <main class="flex-grow-1 px-4 pt-4">
+                @RenderBody()
+            </main>
+        </div>
+
+        <!-- 📱 Mobile : navbar admin horizontale -->
+        <div class="d-md-none">
+            @await Html.PartialAsync("_NavbarAdminMobile")
+
+            <main class="container mt-4">
+                @RenderBody()
+            </main>
+        </div>
     }
     else
     {
         @await Html.PartialAsync("_NavbarPublic")
+        <main class="container mt-4">
+            @RenderBody()
+        </main>
     }
 
-    <main class="container mt-4" style="margin-left:250px;">
-        @RenderBody()
-    </main>
-
+    <!-- Scripts -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @RenderSection("Scripts", required: false)
 </body>
