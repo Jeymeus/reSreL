@@ -1,5 +1,6 @@
 ﻿@model reSreLData.Models.Ressource
 @using reSreLData.Models
+
 @{
     ViewData["Title"] = "Modifier la ressource";
     var allCategories = ViewBag.Categories as List<Categorie>;
@@ -10,7 +11,9 @@
     <div class="card shadow p-4">
         <h2 class="mb-4 text-primary">✏️ @ViewData["Title"]</h2>
 
+        <!-- Formulaire d'édition -->
         <form asp-action="Edit" method="post" class="needs-validation" novalidate>
+            <input type="hidden" name="source" value="@ViewBag.Source" />
             <input type="hidden" asp-for="Id" />
 
             <div class="mb-3">
@@ -34,7 +37,7 @@
             <div class="mb-3">
                 <label class="form-label">Catégorie</label>
                 <select name="SelectedCategorieIds" class="form-select">
-                    <option disabled selected>-- Sélectionnez une catégorie --</option>
+                    <option disabled>-- Sélectionnez une catégorie --</option>
                     @foreach (var cat in allCategories)
                     {
                         <option value="@cat.Id" selected="@(selectedIds.Contains(cat.Id))">@cat.Nom</option>
@@ -42,15 +45,12 @@
                 </select>
             </div>
 
-            <div class="d-flex justify-content-between mt-4">
+            <!-- Boutons d'action -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
                 <div>
                     <button type="submit" class="btn btn-success">💾 Enregistrer</button>
-                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary ms-2">↩️ Retour</a>
+                    <a asp-action="@ViewBag.Source" asp-route-id="@Model.Id" class="btn btn-secondary ms-2">↩️ Retour</a>
                 </div>
-
-                <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Confirmer la suppression ?');">
-                    <button type="submit" class="btn btn-outline-danger">🗑️ Supprimer</button>
-                </form>
             </div>
         </form>
     </div>
