@@ -1,27 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using reSreL.Models;
-using reSreL.Services;
+using reSreLData.Models;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
+using reSreLData.Repositories;
 
 
 namespace reSreL.Controllers
 {
     public class UsersController : Controller
     {
-        private readonly UserService _userService;
+        private readonly UserRepository _userRepository;
 
-        public UsersController(UserService userService)
+        public UsersController(UserRepository userRepository)
         {
-            _userService = userService;
+            _userRepository = userRepository;
         }
 
         // GET: /Users
         public async Task<IActionResult> Index()
         {
-            var users = await _userService.GetAllAsync();
+            var users = await _userRepository.GetAllAsync();
             return View(users);
         }
 
@@ -38,7 +38,7 @@ namespace reSreL.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _userService.CreateAsync(user);
+                await _userRepository.CreateAsync(user);
                 return RedirectToAction(nameof(Login));
             }
 
@@ -48,7 +48,7 @@ namespace reSreL.Controllers
         // GET: /Users/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var user = await _userService.GetByIdAsync(id);
+            var user = await _userRepository.GetByIdAsync(id);
             return user == null ? NotFound() : View(user);
         }
 
@@ -61,7 +61,7 @@ namespace reSreL.Controllers
 
             if (ModelState.IsValid)
             {
-                var success = await _userService.UpdateAsync(user);
+                var success = await _userRepository.UpdateAsync(user);
                 return success ? RedirectToAction(nameof(Index)) : NotFound();
             }
 
@@ -71,7 +71,7 @@ namespace reSreL.Controllers
         // GET: /Users/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            var user = await _userService.GetByIdAsync(id);
+            var user = await _userRepository.GetByIdAsync(id);
             return user == null ? NotFound() : View(user);
         }
 
@@ -80,7 +80,7 @@ namespace reSreL.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var success = await _userService.DeleteAsync(id);
+            var success = await _userRepository.DeleteAsync(id);
             return success ? RedirectToAction(nameof(Index)) : NotFound();
         }
 
@@ -96,7 +96,7 @@ namespace reSreL.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string motDePasse)
         {
-            var user = await _userService.AuthenticateAsync(email, motDePasse);
+            var user = await _userRepository.AuthenticateAsync(email, motDePasse);
 
             if (user == null)
             {
@@ -106,7 +106,7 @@ namespace reSreL.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Nom),
+                new Claim(ClaimTypes.Name, user.Email),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim("UserId", user.Id.ToString()),
                 new Claim(ClaimTypes.Role, user.Role) // ← ajoute cette ligne

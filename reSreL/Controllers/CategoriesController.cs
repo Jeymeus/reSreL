@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using reSreL.Data;
-using reSreL.Models;
+using reSreLData.Data;
+using reSreLData.Models;
 
 namespace reSreL.Controllers
 {

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<reSreL.Models.Ressource>
+﻿@model IEnumerable<reSreLData.Models.Ressource>
 
 @{
     ViewData["Title"] = "Toutes les ressources";
@@ -14,7 +14,7 @@
         <div class="col-md-4">
             <select name="categorieId" class="form-select">
                 <option value="">📁 Toutes les catégories</option>
-                @foreach (var cat in ViewBag.Categories as List<reSreL.Models.Categorie>)
+                @foreach (var cat in ViewBag.Categories as List<reSreLData.Models.Categorie>)
                 {
                     var selectedAttr = ViewBag.CategorieId != null && (int)ViewBag.CategorieId == cat.Id
                         ? "selected"
@@ -48,7 +48,11 @@
                             <span class="badge bg-primary">@cat.Nom</span>
                         }
                     </p>
-                    <a href="@ressource.Lien" class="btn btn-outline-primary" target="_blank">Voir la ressource</a>
+                    <a asp-controller="Ressources" asp-action="Details" asp-route-id="@ressource.Id" class="btn btn-outline-primary">
+    Voir la ressource
+</a>
+
+
                 </div>
             </div>
         </div>

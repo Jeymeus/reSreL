@@ -1,36 +1,41 @@
-﻿@model reSreL.Models.Ressource
+﻿@model reSreLData.Models.Ressource
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Détails de la ressource";
 }
 
-<h1>Details</h1>
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-info-circle"></i> Détails de la ressource</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">📄 Nom</dt>
+                <dd class="col-sm-9">@Model.Nom</dd>
 
-<div>
-    <h4>Ressource</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nom)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nom)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Type)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Type)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Lien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Lien)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                <dt class="col-sm-3">📦 Type</dt>
+                <dd class="col-sm-9">@Model.Type</dd>
+
+                <dt class="col-sm-3">🔗 Lien</dt>
+                <dd class="col-sm-9">
+                    <a href="@Model.Lien" target="_blank" class="btn btn-outline-primary btn-sm">
+                        Ouvrir la ressource
+                    </a>
+                </dd>
+            </dl>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            @if (ViewBag.CanEdit == true)
+            {
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                    ✏️ Modifier
+                </a>
+            }
+
+            <a asp-action="PublicList" class="btn btn-secondary">
+                ⬅️ Retour à la liste
+            </a>
+        </div>
+    </div>
 </div>

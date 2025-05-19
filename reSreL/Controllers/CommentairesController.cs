@@ -1,21 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using reSreL.Models;
-using reSreL.Services;
+using reSreLData.Models;
 using Microsoft.AspNetCore.Authorization;
+using reSreLData.Repositories;
 
 namespace reSreL.Controllers
 {
     public class CommentairesController : Controller
     {
-        private readonly CommentaireService _commentaireService;
-        private readonly UserService _userService;
-        private readonly RessourceService _ressourceService;
+        private readonly CommentaireRepository _commentaireRepository;
+        private readonly UserRepository _userRepository;
+        private readonly RessourceRepository _ressourceRepository;
 
-        public CommentairesController(CommentaireService commentaireService, UserService userService, RessourceService ressourceService)
+        public CommentairesController(CommentaireRepository commentaireRepository, UserRepository userRepository, RessourceRepository ressourceRepository)
         {
-            _commentaireService = commentaireService;
-            _userService = userService;
-            _ressourceService = ressourceService;
+            _commentaireRepository = commentaireRepository;
+            _userRepository = userRepository;
+            _ressourceRepository = ressourceRepository;
         }
 
         // GET: /Commentaires
@@ -23,7 +23,7 @@ namespace reSreL.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
-            var commentaires = await _commentaireService.GetAllAsync();
+            var commentaires = await _commentaireRepository.GetAllAsync();
             return View(commentaires);
         }
 
@@ -51,7 +51,7 @@ namespace reSreL.Controllers
                 Valide = false
             };
 
-            await _commentaireService.CreateAsync(commentaire);
+            await _commentaireRepository.CreateAsync(commentaire);
             TempData["MessageCommentaire"] = "Commentaire soumis à validation.";
 
             return RedirectToAction("Details", "Ressources", new { id = ressourceId });
@@ -62,7 +62,7 @@ namespace reSreL.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Valider(int id)
         {
-            var success = await _commentaireService.ValiderCommentaireAsync(id);
+            var success = await _commentaireRepository.ValiderCommentaireAsync(id);
             if (!success) return NotFound();
 
             TempData["MessageValidation"] = "Commentaire validé.";
@@ -74,7 +74,7 @@ namespace reSreL.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
-            var success = await _commentaireService.DeleteAsync(id);
+            var success = await _commentaireRepository.DeleteAsync(id);
             if (!success) return NotFound();
 
             TempData["MessageSuppression"] = "Commentaire supprimé.";

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace reSreL.Models
+namespace reSreLData.Models
 {
     public class Commentaire
     {

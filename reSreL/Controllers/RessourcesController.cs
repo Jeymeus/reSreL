@@ -1,36 +1,54 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using reSreL.Data;
-using reSreL.Models;
-using reSreL.Services;
+using reSreLData.Data;
+using reSreLData.Models;
+using reSreLData.Repositories;
 
 namespace reSreL.Controllers
 {
     public class RessourcesController : Controller
     {
-        private readonly RessourceService _ressourceService;
-        private readonly CategorieService _categorieService;
+        private readonly RessourceRepository _ressourceRepository;
+        private readonly CategorieRepository _categorieRepository;
         private readonly AppDbContext _context;
 
         public RessourcesController(
-            RessourceService ressourceService,
-            CategorieService categorieService,
+            RessourceRepository ressourceRepository,
+            CategorieRepository categorieRepository,
             AppDbContext context)
         {
-            _ressourceService = ressourceService;
-            _categorieService = categorieService;
+            _ressourceRepository = ressourceRepository;
+            _categorieRepository = categorieRepository;
             _context = context;
         }
 
         public async Task<IActionResult> Index()
         {
-            var ressources = await _ressourceService.GetAllAsync();
+            var ressources = await _ressourceRepository.GetAllAsync();
             return View(ressources);
         }
 
+        public async Task<IActionResult> Details(int id)
+        {
+            var ressource = await _context.Ressources
+                .Include(r => r.Categories)
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (ressource == null) return NotFound();
+
+            var currentUserEmail = User.Identity?.Name;
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == currentUserEmail);
+
+            ViewBag.CanEdit = User.IsInRole("Admin") || (currentUser != null && ressource.UserId == currentUser.Id);
+
+            return View(ressource);
+        }
+
+
         public async Task<IActionResult> Create()
         {
-            ViewBag.Categories = await _categorieService.GetAllAsync();
+            ViewBag.Categories = await _categorieRepository.GetAllAsync();
             return View();
         }
 
@@ -38,6 +56,7 @@ namespace reSreL.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Ressource ressource, int[] SelectedCategorieIds)
         {
+          
             if (SelectedCategorieIds == null || SelectedCategorieIds.Length == 0)
             {
                 ModelState.AddModelError("Categories", "Veuillez sélectionner au moins une catégorie.");
@@ -52,26 +71,27 @@ namespace reSreL.Controllers
 
                 // Associer l'utilisateur connecté
                 var userEmail = User.Identity?.Name;
+               
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
                 if (user == null) return Unauthorized();
 
                 ressource.UserId = user.Id;
 
-                await _ressourceService.CreateAsync(ressource);
+                await _ressourceRepository.CreateAsync(ressource);
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewBag.Categories = await _categorieService.GetAllAsync();
+            ViewBag.Categories = await _categorieRepository.GetAllAsync();
             return View(ressource);
         }
 
 
         public async Task<IActionResult> Edit(int id)
         {
-            var ressource = await _ressourceService.GetByIdAsync(id);
+            var ressource = await _ressourceRepository.GetByIdAsync(id);
             if (ressource == null) return NotFound();
 
-            ViewBag.Categories = await _categorieService.GetAllAsync();
+            ViewBag.Categories = await _categorieRepository.GetAllAsync();
             ViewBag.SelectedCategorieIds = ressource.Categories.Select(c => c.Id).ToArray();
 
             return View(ressource);
@@ -83,14 +103,24 @@ namespace reSreL.Controllers
         {
             if (id != ressource.Id) return BadRequest();
 
+            var existing = await _context.Ressources
+                .Include(r => r.Categories)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (existing == null) return NotFound();
+
+            // 🔐 Vérification des droits
+            var currentUserEmail = User.Identity?.Name;
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == currentUserEmail);
+
+            var isAdmin = User.IsInRole("Admin");
+            var isOwner = currentUser != null && existing.UserId == currentUser.Id;
+
+            if (!isAdmin && !isOwner)
+                return Forbid(); // ⛔️ Interdiction si ni admin ni propriétaire
+
             if (ModelState.IsValid)
             {
-                var existing = await _context.Ressources
-                    .Include(r => r.Categories)
-                    .FirstOrDefaultAsync(r => r.Id == id);
-
-                if (existing == null) return NotFound();
-
                 existing.Nom = ressource.Nom;
                 existing.Type = ressource.Type;
                 existing.Lien = ressource.Lien;
@@ -103,14 +133,14 @@ namespace reSreL.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewBag.Categories = await _categorieService.GetAllAsync();
+            ViewBag.Categories = await _categorieRepository.GetAllAsync();
             ViewBag.SelectedCategorieIds = SelectedCategorieIds;
             return View(ressource);
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            var ressource = await _ressourceService.GetByIdAsync(id);
+            var ressource = await _ressourceRepository.GetByIdAsync(id);
             return ressource == null ? NotFound() : View(ressource);
         }
 
@@ -118,9 +148,29 @@ namespace reSreL.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var success = await _ressourceService.DeleteAsync(id);
-            return success ? RedirectToAction(nameof(Index)) : NotFound();
+            var ressource = await _context.Ressources
+                .Include(r => r.Categories)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (ressource == null) return NotFound();
+
+            // 🔐 Vérification des droits
+            var currentUserEmail = User.Identity?.Name;
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == currentUserEmail);
+
+            var isAdmin = User.IsInRole("Admin");
+            var isOwner = currentUser != null && ressource.UserId == currentUser.Id;
+
+            if (!isAdmin && !isOwner)
+                return Forbid(); // ⛔️ Interdiction si ni admin ni créateur
+
+            // Suppression
+            _context.Ressources.Remove(ressource);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
+
 
 
         public async Task<IActionResult> FiltrerParCategorie(int categorieId)
@@ -130,7 +180,7 @@ namespace reSreL.Controllers
                 .Where(r => r.Categories.Any(c => c.Id == categorieId))
                 .ToListAsync();
 
-            ViewBag.Categories = await _categorieService.GetAllAsync();
+            ViewBag.Categories = await _categorieRepository.GetAllAsync();
             ViewBag.CategorieId = categorieId;
             return View("Index", ressources);
         }
@@ -145,7 +195,7 @@ namespace reSreL.Controllers
                 ressources = ressources.Where(r => r.Categories.Any(c => c.Id == categorieId));
             }
 
-            ViewBag.Categories = await _categorieService.GetAllAsync();
+            ViewBag.Categories = await _categorieRepository.GetAllAsync();
             ViewBag.SelectedCategorieId = categorieId;
 
             return View(await ressources.ToListAsync());
@@ -170,7 +220,7 @@ namespace reSreL.Controllers
                 ressources = ressources.Where(r => r.Categories.Any(c => c.Id == categorieId));
             }
 
-            ViewBag.Categories = await _categorieService.GetAllAsync();
+            ViewBag.Categories = await _categorieRepository.GetAllAsync();
             ViewBag.Search = search;
             ViewBag.CategorieId = categorieId;
 

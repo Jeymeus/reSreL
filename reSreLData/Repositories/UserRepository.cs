@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using reSreL.Data;
-using reSreL.Models;
+using reSreLData.Data;
+using reSreLData.Models;
 
-namespace reSreL.Services
+namespace reSreLData.Repositories
 {
-    public class UserService
+    public class UserRepository
     {
         private readonly AppDbContext _context;
         private readonly PasswordHasher<User> _passwordHasher;
 
-        public UserService(AppDbContext context)
+        public UserRepository(AppDbContext context)
         {
             _context = context;
             _passwordHasher = new PasswordHasher<User>();

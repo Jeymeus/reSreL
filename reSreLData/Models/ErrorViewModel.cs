@@ -1,4 +1,4 @@
-namespace reSreL.Models
+namespace reSreLData.Models
 {
     public class ErrorViewModel
     {

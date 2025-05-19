@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-
-namespace reSreL.Models
+namespace reSreLData.Models
 {
     public class Ressource
     {

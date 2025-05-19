@@ -1,26 +1,24 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using reSreL.Data;
-using reSreL.Services;
+using reSreLData.Data;
+using reSreLData.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Connexion � la base de donn�es (EF Core)
+// Connexion à la base de données (EF Core)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Injection de services m�tier
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<RessourceService>();
-builder.Services.AddScoped<CategorieService>();
-builder.Services.AddScoped<CommentaireService>();
+// Injection des repositories
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<RessourceRepository>();
+builder.Services.AddScoped<CategorieRepository>();
+builder.Services.AddScoped<CommentaireRepository>();
 
-
-
-
-// Ajout des contr�leurs + vues (MVC classique)
+// Ajout des contrôleurs + vues (MVC)
 builder.Services.AddControllersWithViews();
 
+// Configuration de l'authentification par cookies
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -30,25 +28,23 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 var app = builder.Build();
 
-app.UseAuthentication();
-app.UseAuthorization();
-
-
-// Middleware pipeline
+// Middleware d'erreur (prod)
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
+// Ordre CORRECT des middlewares :
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseRouting();
+app.UseRouting(); // 👉 Obligatoire avant UseAuthentication
 
-app.UseAuthorization();
+app.UseAuthentication(); // 👉 Doit être après UseRouting
+app.UseAuthorization();  // 👉 Toujours après UseAuthentication
 
-// Routing classique MVC
+// Routing MVC
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
