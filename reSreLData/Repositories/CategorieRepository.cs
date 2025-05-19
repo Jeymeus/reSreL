@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using reSreL.Data;
-using reSreL.Models;
+using reSreLData.Data;
+using reSreLData.Models;
 
-namespace reSreL.Services
+namespace reSreLData.Repositories
 {
-    public class CategorieService
+    public class CategorieRepository
     {
         private readonly AppDbContext _context;
 
-        public CategorieService(AppDbContext context)
+        public CategorieRepository(AppDbContext context)
         {
             _context = context;
         }

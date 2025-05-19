@@ -1,24 +1,24 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using reSreL.Models;
-using reSreL.Services;
+using reSreLData.Models;
+using reSreLData.Repositories;
 
 namespace reSreL.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly CategorieService _categorieService;
+        private readonly CategorieRepository _categorieRepository;
 
-        public HomeController(ILogger<HomeController> logger, CategorieService categorieService)
+        public HomeController(ILogger<HomeController> logger, CategorieRepository categorieRepository)
         {
             _logger = logger;
-            _categorieService = categorieService;
+            _categorieRepository = categorieRepository;
         }
 
         private async Task SetSharedViewDataAsync()
         {
-            ViewBag.Categories = await _categorieService.GetAllAsync();
+            ViewBag.Categories = await _categorieRepository.GetAllAsync();
 
             if (User.Identity.IsAuthenticated)
             {

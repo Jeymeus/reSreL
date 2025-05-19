@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using reSreL.Data;
-using reSreL.Models;
+using reSreLData.Data;
+using reSreLData.Models;
 
-namespace reSreL.Services
+namespace reSreLData.Repositories
 {
-    public class CommentaireService
+    public class CommentaireRepository
     {
         private readonly AppDbContext _context;
 
-        public CommentaireService(AppDbContext context)
+        public CommentaireRepository(AppDbContext context)
         {
             _context = context;
         }

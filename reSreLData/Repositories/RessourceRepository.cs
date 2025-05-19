@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using reSreL.Data;
-using reSreL.Models;
+using reSreLData.Data;
+using reSreLData.Models;
 
-namespace reSreL.Services
+namespace reSreLData.Repositories
 {
-    public class RessourceService
+    public class RessourceRepository
     {
         private readonly AppDbContext _context;
 
-        public RessourceService(AppDbContext context)
+        public RessourceRepository(AppDbContext context)
         {
             _context = context;
         }

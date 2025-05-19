@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using reSreL.Models;
+using reSreLData.Models;
 
-namespace reSreL.Data
+namespace reSreLData.Data
 {
     public class AppDbContext : DbContext
     {
