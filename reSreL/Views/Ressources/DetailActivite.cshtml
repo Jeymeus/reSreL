@@ -1,20 +1,17 @@
 ﻿@model reSreLData.Models.Ressource
 @{
     ViewData["Title"] = "Détail Activité";
-    var game = ViewBag.Game as reSreLData.Models.Game ?? new reSreLData.Models.Game(); // fallback si null
-    var commentaires = ViewBag.Commentaires as List<reSreLData.Models.Commentaire>;
-    bool canEdit = ViewBag.CanEdit ?? false;
-
-    bool hasGame = ViewBag.Game != null;
+    var game = ViewBag.Game as reSreLData.Models.Game;
+    bool hasGame = game != null && game.Status == "En cours";
+    int? gameId = game?.Id;
 }
 
-<h2 class="mb-4">🎯 Activité : @Model.Nom</h2>
+<h2 class="mb-4">🎯 Activité : Morpion</h2>
 
 <div class="mb-3">
-    <p><strong>Type :</strong> @Model.Type</p>
-    <p><strong>Ajoutée par :</strong> @Model.User?.Prenom</p>
+    <p><strong>🧑 Créée par :</strong> @Model.User?.Prenom</p>
     <p>
-        <strong>Catégories :</strong>
+        <strong>🏷️ Catégories :</strong>
         @foreach (var cat in Model.Categories)
         {
             <span class="badge bg-secondary">@cat.Nom</span>
@@ -25,140 +22,41 @@
 <hr />
 
 <h4>🕹️ Partie</h4>
-@if (hasGame)
+@if (game != null)
 {
-    <p><strong>Statut :</strong> @game.Status</p>
-    <p><strong>Créée par :</strong> @game.CreatedBy?.Prenom</p>
-    @if (game.Opponent != null)
+    <p><strong>📌 Statut :</strong> @game.Status</p>
+    <p><strong>🕒 Créée le :</strong> @game.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+
+    @if (game.Status == "En attente")
     {
-        <p><strong>Adversaire :</strong> @game.Opponent.Prenom</p>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <button id="btnStartGame" class="btn btn-success">🎮 Démarrer la partie solo</button>
+            <form method="post" asp-controller="Game" asp-action="Invite" asp-route-id="@game.Id">
+                <button type="submit" class="btn btn-outline-info">🤝 Inviter un utilisateur</button>
+            </form>
+        </div>
     }
-    <p><strong>Créée le :</strong> @game.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+
+    <button id="btnStopGame" class="btn btn-danger mt-3 @(game.Status == "En cours" ? "" : "d-none")">
+        ⛔ Arrêter la partie
+    </button>
+
 }
 else
 {
-    <p class="text-muted">Nouvelle partie non encore initialisée.</p>
+    <p class="text-muted">Aucune partie associée à cette activité.</p>
 }
 
-<div class="mb-3">
-    @if (hasGame)
-    {
-        <form method="post" asp-controller="Game" asp-action="Invite" asp-route-id="@game.Id" class="d-inline">
-            <button type="submit" class="btn btn-outline-info me-2">🤝 Inviter un participant</button>
-        </form>
-        <div id="game-section">
-            <button id="btnStartGame" class="btn btn-success mb-3">🎮 Démarrer la partie</button>
-        </div>
-
-        <form method="post" asp-controller="Game" asp-action="Stop" asp-route-id="@game.Id" class="d-inline">
-            <button type="submit" class="btn btn-danger">⛔ Arrêter la partie</button>
-        </form>
-    }
-    else
-    {
-        <div id="game-section">
-            @Html.AntiForgeryToken()
-            <button id="btnStartGame" class="btn btn-success mb-3">🎮 Démarrer la partie</button>
-        </div>
-
-
-    }
+<div id="game-section" class="mt-4 d-none">
+    <h5>🎯 Plateau de jeu</h5>
+    <div id="game-board"></div>
+    <div id="game-status" class="fw-bold text-primary mt-3"></div>
+    <button id="restart-btn" class="btn btn-primary mt-3 d-none">🔁 Rejouer</button>
 </div>
-
-<h5>🎯 Plateau de jeu</h5>
-<table class="table table-bordered text-center w-50">
-    @for (int y = 0; y < 3; y++)
-    {
-        <tr>
-            @for (int x = 0; x < 3; x++)
-            {
-                var move = hasGame ? game.Moves?.FirstOrDefault(m => m.X == x && m.Y == y) : null;
-                <td style="height: 80px; font-size: 24px;">
-                    @if (move != null)
-                    {
-                        <span>@(move.PlayedById == game.CreatedById ? "❌" : "⭕")</span>
-                    }
-                    else if (hasGame)
-                    {
-                        <form method="post" asp-controller="Game" asp-action="PlayMove">
-                            <input type="hidden" name="GameId" value="@game.Id" />
-                            <input type="hidden" name="X" value="@x" />
-                            <input type="hidden" name="Y" value="@y" />
-                            <button class="btn btn-light" type="submit" style="width: 100%; height: 100%;">&nbsp;</button>
-                        </form>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </td>
-            }
-        </tr>
-    }
-</table>
-
-<hr />
-
-<h4>💬 Commentaires</h4>
-@if (commentaires != null && commentaires.Any())
-{
-    <ul class="list-group">
-        @foreach (var c in commentaires)
-        {
-            <li class="list-group-item">
-                <strong>Utilisateur #@c.UserId</strong> : <em>@c.Contenu</em><br />
-                <small class="text-muted">@c.DateCreation.ToString("dd/MM/yyyy HH:mm")</small>
-            </li>
-        }
-    </ul>
-}
-else
-{
-    <p class="text-muted">Aucun commentaire pour cette ressource.</p>
-}
-
-@if (canEdit)
-{
-    <div class="mt-4">
-        <a asp-controller="Ressources" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">✏️ Modifier</a>
-        <a asp-controller="Ressources" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">🗑️ Supprimer</a>
-    </div>
-}
-
 
 @section Scripts {
     <script>
-        document.getElementById("btnStartGame").addEventListener("click", function (e) {
-            e.preventDefault();
-
-            fetch("/Ressources/InitialiserPartieAjax", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "RequestVerificationToken": document.querySelector("input[name='__RequestVerificationToken']").value
-                },
-                body: "ressourceId=@Model.Id"
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    const gameHtml = `
-                        <div class="card p-3">
-                            <h4>🕹️ Partie initialisée</h4>
-                            <p><strong>Statut :</strong> ${data.game.status}</p>
-                            <p><strong>Date de création :</strong> ${data.game.createdAt}</p>
-                            <p>Plateau :</p>
-                            <div style="display:grid;grid-template-columns:repeat(3,60px);gap:5px;">
-                                ${Array(9).fill('<div style="width:60px;height:60px;border:1px solid #ccc;"></div>').join('')}
-                            </div>
-                            <button class="btn btn-danger mt-3">🛑 Arrêter la partie</button>
-                        </div>
-                    `;
-                    document.getElementById("game-section").innerHTML = gameHtml;
-                } else {
-                    alert(data.message || "Erreur lors de l'initialisation.");
-                }
-            });
-        });
+        const gameId = @(gameId ?? 0);
     </script>
+    <script src="~/js/game.js"></script>
 }

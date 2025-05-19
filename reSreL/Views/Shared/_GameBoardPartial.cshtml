@@ -1,0 +1,30 @@
+﻿@model reSreLData.Models.Game
+
+<table class="table table-bordered text-center w-auto">
+    @for (int y = 0; y < 3; y++)
+    {
+        <tr>
+            @for (int x = 0; x < 3; x++)
+            {
+                var move = Model.Moves?.FirstOrDefault(m => m.X == x && m.Y == y);
+                <td style="width: 80px; height: 80px; font-size: 28px;">
+                    @if (move != null)
+                    {
+                        <span>
+                            @(move.PlayedById == Model.CreatedById ? "❌" : "⭕")
+                        </span>
+                    }
+                    else
+                    {
+                        <form method="post" asp-controller="Game" asp-action="PlayMove" style="margin: 0;">
+                            <input type="hidden" name="GameId" value="@Model.Id" />
+                            <input type="hidden" name="X" value="@x" />
+                            <input type="hidden" name="Y" value="@y" />
+                            <button type="submit" class="btn btn-light w-100 h-100 p-0">&nbsp;</button>
+                        </form>
+                    }
+                </td>
+            }
+        </tr>
+    }
+</table>

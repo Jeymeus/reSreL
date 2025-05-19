@@ -112,7 +112,6 @@ namespace reSreL.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Ressource ressource, int[] SelectedCategorieIds)
         {
-          
             if (SelectedCategorieIds == null || SelectedCategorieIds.Length == 0)
             {
                 ModelState.AddModelError("Categories", "Veuillez sélectionner au moins une catégorie.");
@@ -132,17 +131,31 @@ namespace reSreL.Controllers
 
                 ressource.UserId = user.Id;
 
-
-                ressource.UserId = user.Id;
-
+                // Sauvegarder la ressource
                 await _ressourceRepository.CreateAsync(ressource);
+
+                // 🧠 Création auto d'une Game si "activité"
+                var isActivite = ressource.Categories.Any(c => c.Nom.ToLower() == "activité");
+                if (isActivite)
+                {
+                    var game = new Game
+                    {
+                        CreatedById = user.Id,
+                        RessourceId = ressource.Id,
+                        Status = "En attente",
+                        CreatedAt = DateTime.Now
+                    };
+
+                    _context.Games.Add(game);
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction(User.IsInRole("Admin") ? "Index" : "PublicList");
             }
 
             ViewBag.Categories = await _categorieRepository.GetAllAsync();
             return View(ressource);
         }
-
 
         public async Task<IActionResult> Edit(int id, string? source)
         {
@@ -295,6 +308,7 @@ namespace reSreL.Controllers
         }
 
         [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> InitialiserPartieAjax(int ressourceId)
         {
             var currentUserEmail = User.FindFirstValue(ClaimTypes.Email);
@@ -303,8 +317,12 @@ namespace reSreL.Controllers
             if (user == null)
                 return Json(new { success = false, message = "Utilisateur non connecté." });
 
+            var ressourceExists = await _context.Ressources.AnyAsync(r => r.Id == ressourceId);
+            if (!ressourceExists)
+                return Json(new { success = false, message = "Ressource introuvable." });
+
             var existingGame = await _context.Games
-                .FirstOrDefaultAsync(g => g.CreatedById == user.Id);
+                .FirstOrDefaultAsync(g => g.CreatedById == user.Id && g.RessourceId == ressourceId);
 
             if (existingGame != null)
                 return Json(new { success = true, game = existingGame });
@@ -312,6 +330,7 @@ namespace reSreL.Controllers
             var newGame = new Game
             {
                 CreatedById = user.Id,
+                RessourceId = ressourceId,
                 Status = "En attente",
                 CreatedAt = DateTime.Now
             };
@@ -328,7 +347,6 @@ namespace reSreL.Controllers
                     status = newGame.Status,
                     createdAt = newGame.CreatedAt.ToString("dd/MM/yyyy HH:mm")
                 }
-
             });
         }
 

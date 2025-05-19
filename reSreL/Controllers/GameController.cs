@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using reSreLData.Data;
+using reSreLData.Models;
+using System.Security.Claims;
 
 namespace reSreL.Controllers
 {
@@ -13,79 +15,53 @@ namespace reSreL.Controllers
             _context = context;
         }
 
-        // GET: GameController
-        public ActionResult Index()
-        {
-            return View();
-        }
-
-        // GET: GameController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: GameController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: GameController/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> StartSolo(int id)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var game = await _context.Games.FindAsync(id);
+            if (game == null) return NotFound();
+
+            game.Status = "En cours";
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
-        // GET: GameController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
 
-        // POST: GameController/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Stop(int id)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var game = await _context.Games.FindAsync(id);
+            if (game == null) return NotFound();
+
+            game.Status = "Terminée";
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
-        // GET: GameController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: GameController/Delete/5
+        // 🔥 Nouveau : enregistrement du score depuis JS
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> SaveResult([FromBody] GameResultDto result)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var game = await _context.Games.FindAsync(result.GameId);
+            if (game == null) return NotFound();
+
+            game.Status = "Terminée";
+
+            // Tu peux aussi créer une table GameScore si tu veux persister tout ça
+            Console.WriteLine($"Score : {result.UserScore} - {result.BotScore}");
+
+            await _context.SaveChangesAsync();
+            return Ok(new { success = true });
         }
+    }
+
+    public class GameResultDto
+    {
+        public int GameId { get; set; }
+        public int UserScore { get; set; }
+        public int BotScore { get; set; }
+        public string Result { get; set; } = "";
     }
 }
