@@ -57,8 +57,10 @@ else
     else
     {
         <div id="game-section">
+            @Html.AntiForgeryToken()
             <button id="btnStartGame" class="btn btn-success mb-3">🎮 Démarrer la partie</button>
         </div>
+
 
     }
 </div>
