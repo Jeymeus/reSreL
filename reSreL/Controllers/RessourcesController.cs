@@ -280,10 +280,11 @@ namespace reSreL.Controllers
                 success = true,
                 game = new
                 {
-                    newGame.Id,
-                    newGame.Status,
-                    CreatedAt = newGame.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                    id = newGame.Id,
+                    status = newGame.Status,
+                    createdAt = newGame.CreatedAt.ToString("dd/MM/yyyy HH:mm")
                 }
+
             });
         }
 
