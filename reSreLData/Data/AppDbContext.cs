@@ -15,6 +15,9 @@ namespace reSreLData.Data
         public DbSet<Categorie> Categories { get; set; }
         public DbSet<Commentaire> Commentaires { get; set; }
 
+        // 👉 Ajout pour le Morpion
+        public DbSet<Game> Games { get; set; }
+        public DbSet<Move> Moves { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,9 +32,44 @@ namespace reSreLData.Data
             // Relation many-to-one entre Ressource et User
             modelBuilder.Entity<Ressource>()
                 .HasOne(r => r.User)
-                .WithMany() // ou .WithMany(u => u.Ressources) si tu ajoutes la collection côté User
+                .WithMany() // ou .WithMany(u => u.Ressources)
                 .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // ou Restrict si tu préfères empêcher la suppression
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 👉 Relation Game - User (CreatedBy)
+            modelBuilder.Entity<Game>()
+                .HasOne(g => g.CreatedBy)
+                .WithMany()
+                .HasForeignKey(g => g.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 👉 Relation Game - User (Opponent)
+            modelBuilder.Entity<Game>()
+                .HasOne(g => g.Opponent)
+                .WithMany()
+                .HasForeignKey(g => g.OpponentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 👉 Relation Move - Game
+            modelBuilder.Entity<Move>()
+                .HasOne(m => m.Game)
+                .WithMany(g => g.Moves)
+                .HasForeignKey(m => m.GameId);
+
+            // 👉 Relation Move - User (PlayedBy)
+            modelBuilder.Entity<Move>()
+                .HasOne(m => m.PlayedBy)
+                .WithMany()
+                .HasForeignKey(m => m.PlayedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relation Game - Ressource
+            modelBuilder.Entity<Game>()
+                .HasOne(g => g.Ressource)
+                .WithOne() // ou .WithMany() si plusieurs games pour une même ressource
+                .HasForeignKey<Game>(g => g.RessourceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }
