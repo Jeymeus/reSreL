@@ -23,5 +23,7 @@ namespace reSreLData.Models
         // Lien avec l'utilisateur
         public int UserId { get; set; } // Clé étrangère
         public User? User { get; set; }
+
+        public Game? Game { get; set; }
     }
 }

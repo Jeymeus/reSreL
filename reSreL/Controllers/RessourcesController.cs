@@ -5,6 +5,7 @@ using reSreLData.Data;
 using reSreLData.Models;
 using reSreLData.Repositories;
 
+
 namespace reSreL.Controllers
 {
     public class RessourcesController : Controller
@@ -12,17 +13,20 @@ namespace reSreL.Controllers
         private readonly RessourceRepository _ressourceRepository;
         private readonly CategorieRepository _categorieRepository;
         private readonly CommentaireRepository _commentaireRepository;
+        private readonly GameRepository _gameRepository;
         private readonly AppDbContext _context;
 
         public RessourcesController(
             RessourceRepository ressourceRepository,
             CategorieRepository categorieRepository,
             CommentaireRepository commentaireRepository,
+            GameRepository gameRepository,
             AppDbContext context)
         {
             _ressourceRepository = ressourceRepository;
             _categorieRepository = categorieRepository;
             _commentaireRepository = commentaireRepository;
+            _gameRepository = gameRepository;
             _context = context;
         }
 
@@ -286,6 +290,36 @@ namespace reSreL.Controllers
                 }
 
             });
+        }
+
+        public async Task<IActionResult> DetailActivite(int id)
+        {
+            var ressource = await _context.Ressources
+                .Include(r => r.User)
+                .Include(r => r.Categories)
+                .Include(r => r.Game)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (ressource == null) return NotFound();
+
+            // Exemple : récupération du jeu associé à l'utilisateur courant
+            var currentUserEmail = User.FindFirstValue(ClaimTypes.Email);
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == currentUserEmail);
+
+            var game = await _context.Games
+                .Include(g => g.Moves)
+                .Include(g => g.CreatedBy)
+                .Include(g => g.Opponent)
+                .FirstOrDefaultAsync(g => g.CreatedById == currentUser.Id);
+
+            ViewBag.Game = game;
+            ViewBag.CanEdit = currentUser != null && (User.IsInRole("Admin") || ressource.UserId == currentUser.Id);
+            ViewBag.Commentaires = await _context.Commentaires
+                .Where(c => c.RessourceId == ressource.Id)
+                .OrderByDescending(c => c.DateCreation)
+                .ToListAsync();
+
+            return View("DetailActivite", ressource);
         }
 
 
