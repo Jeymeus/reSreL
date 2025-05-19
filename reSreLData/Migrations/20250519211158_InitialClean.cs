@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace reSreLData.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class InitialClean : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -94,6 +94,47 @@ namespace reSreLData.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Games",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RessourceId = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<int>(type: "int", nullable: false),
+                    OpponentId = table.Column<int>(type: "int", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RessourceId1 = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Games", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Games_Ressources_RessourceId",
+                        column: x => x.RessourceId,
+                        principalTable: "Ressources",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Games_Ressources_RessourceId1",
+                        column: x => x.RessourceId1,
+                        principalTable: "Ressources",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Games_Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Games_Users_OpponentId",
+                        column: x => x.OpponentId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RessourceCategorie",
                 columns: table => new
                 {
@@ -117,6 +158,35 @@ namespace reSreLData.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Moves",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    GameId = table.Column<int>(type: "int", nullable: false),
+                    PlayedById = table.Column<int>(type: "int", nullable: false),
+                    X = table.Column<int>(type: "int", nullable: false),
+                    Y = table.Column<int>(type: "int", nullable: false),
+                    PlayedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Moves", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Moves_Games_GameId",
+                        column: x => x.GameId,
+                        principalTable: "Games",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Moves_Users_PlayedById",
+                        column: x => x.PlayedById,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Commentaires_RessourceId",
                 table: "Commentaires",
@@ -126,6 +196,39 @@ namespace reSreLData.Migrations
                 name: "IX_Commentaires_UserId",
                 table: "Commentaires",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Games_CreatedById",
+                table: "Games",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Games_OpponentId",
+                table: "Games",
+                column: "OpponentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Games_RessourceId",
+                table: "Games",
+                column: "RessourceId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Games_RessourceId1",
+                table: "Games",
+                column: "RessourceId1",
+                unique: true,
+                filter: "[RessourceId1] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Moves_GameId",
+                table: "Moves",
+                column: "GameId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Moves_PlayedById",
+                table: "Moves",
+                column: "PlayedById");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RessourceCategorie_RessourcesId",
@@ -145,7 +248,13 @@ namespace reSreLData.Migrations
                 name: "Commentaires");
 
             migrationBuilder.DropTable(
+                name: "Moves");
+
+            migrationBuilder.DropTable(
                 name: "RessourceCategorie");
+
+            migrationBuilder.DropTable(
+                name: "Games");
 
             migrationBuilder.DropTable(
                 name: "Categories");

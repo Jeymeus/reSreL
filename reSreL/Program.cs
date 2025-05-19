@@ -14,6 +14,8 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<RessourceRepository>();
 builder.Services.AddScoped<CategorieRepository>();
 builder.Services.AddScoped<CommentaireRepository>();
+builder.Services.AddScoped<GameRepository>();
+
 
 // Ajout des contrôleurs + vues (MVC)
 builder.Services.AddControllersWithViews();

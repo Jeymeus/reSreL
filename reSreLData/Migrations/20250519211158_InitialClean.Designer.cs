@@ -12,8 +12,8 @@ using reSreLData.Data;
 namespace reSreLData.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250519190821_MiseEnPlaceActivite")]
-    partial class MiseEnPlaceActivite
+    [Migration("20250519211158_InitialClean")]
+    partial class InitialClean
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -111,6 +111,9 @@ namespace reSreLData.Migrations
                     b.Property<int>("RessourceId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("RessourceId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -123,6 +126,10 @@ namespace reSreLData.Migrations
 
                     b.HasIndex("RessourceId")
                         .IsUnique();
+
+                    b.HasIndex("RessourceId1")
+                        .IsUnique()
+                        .HasFilter("[RessourceId1] IS NOT NULL");
 
                     b.ToTable("Games");
                 });
@@ -278,6 +285,10 @@ namespace reSreLData.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("reSreLData.Models.Ressource", null)
+                        .WithOne("Game")
+                        .HasForeignKey("reSreLData.Models.Game", "RessourceId1");
+
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Opponent");
@@ -318,6 +329,11 @@ namespace reSreLData.Migrations
             modelBuilder.Entity("reSreLData.Models.Game", b =>
                 {
                     b.Navigation("Moves");
+                });
+
+            modelBuilder.Entity("reSreLData.Models.Ressource", b =>
+                {
+                    b.Navigation("Game");
                 });
 #pragma warning restore 612, 618
         }
