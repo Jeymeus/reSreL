@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using reSreLData.Data;
 using reSreLData.Models;
@@ -10,15 +11,18 @@ namespace reSreL.Controllers
     {
         private readonly RessourceRepository _ressourceRepository;
         private readonly CategorieRepository _categorieRepository;
+        private readonly CommentaireRepository _commentaireRepository;
         private readonly AppDbContext _context;
 
         public RessourcesController(
             RessourceRepository ressourceRepository,
             CategorieRepository categorieRepository,
+            CommentaireRepository commentaireRepository,
             AppDbContext context)
         {
             _ressourceRepository = ressourceRepository;
             _categorieRepository = categorieRepository;
+            _commentaireRepository = commentaireRepository;
             _context = context;
         }
 
@@ -36,10 +40,11 @@ namespace reSreL.Controllers
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (ressource == null) return NotFound();
-
-            var currentUserEmail = User.Identity?.Name;
+            var currentUserEmail = User.FindFirstValue(ClaimTypes.Email);
             var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == currentUserEmail);
+            var commentaires = await _commentaireRepository.GetByRessourceIdValidOnlyAsync(id);
 
+            ViewBag.Commentaires = commentaires;
             ViewBag.CanEdit = User.IsInRole("Admin") || (currentUser != null && ressource.UserId == currentUser.Id);
 
             return View(ressource);
@@ -70,15 +75,17 @@ namespace reSreL.Controllers
                     .ToListAsync();
 
                 // Associer l'utilisateur connecté
-                var userEmail = User.Identity?.Name;
-               
+                var userEmail = User.FindFirstValue(ClaimTypes.Email);
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
                 if (user == null) return Unauthorized();
 
                 ressource.UserId = user.Id;
 
+
+                ressource.UserId = user.Id;
+
                 await _ressourceRepository.CreateAsync(ressource);
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(PublicList));
             }
 
             ViewBag.Categories = await _categorieRepository.GetAllAsync();
@@ -110,7 +117,7 @@ namespace reSreL.Controllers
             if (existing == null) return NotFound();
 
             // 🔐 Vérification des droits
-            var currentUserEmail = User.Identity?.Name;
+            var currentUserEmail = User.FindFirstValue(ClaimTypes.Email);
             var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == currentUserEmail);
 
             var isAdmin = User.IsInRole("Admin");
@@ -130,7 +137,8 @@ namespace reSreL.Controllers
                     .ToListAsync();
 
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { id = existing.Id });
+
             }
 
             ViewBag.Categories = await _categorieRepository.GetAllAsync();
@@ -155,7 +163,7 @@ namespace reSreL.Controllers
             if (ressource == null) return NotFound();
 
             // 🔐 Vérification des droits
-            var currentUserEmail = User.Identity?.Name;
+            var currentUserEmail = User.FindFirstValue(ClaimTypes.Email);
             var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == currentUserEmail);
 
             var isAdmin = User.IsInRole("Admin");

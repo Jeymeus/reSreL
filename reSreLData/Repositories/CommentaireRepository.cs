@@ -37,6 +37,17 @@ namespace reSreLData.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Commentaire>> GetByRessourceIdValidOnlyAsync(int ressourceId)
+        {
+            return await _context.Commentaires
+                .Where(c => c.RessourceId == ressourceId && c.Valide)
+                .Include(c => c.Utilisateur)
+                .OrderByDescending(c => c.Id)
+                .ToListAsync();
+        }
+
+
+
         public async Task<Commentaire> CreateAsync(Commentaire commentaire)
         {
             commentaire.DateCreation = DateTime.Now;
