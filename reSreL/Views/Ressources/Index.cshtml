@@ -1,20 +1,47 @@
 ﻿@model IEnumerable<reSreLData.Models.Ressource>
 
 @{
-    ViewData["Title"] = "Liste des ressources";
+    ViewData["Title"] = "📦 Liste des ressources";
 }
 
-<h1 class="mb-4">@ViewData["Title"]</h1>
+<h2 class="mb-4">@ViewData["Title"]</h2>
 
-<a asp-action="Create" class="btn btn-primary mb-3">➕ Ajouter une ressource</a>
+<form method="get" asp-action="Index" class="row mb-4">
+    <div class="col-md-4">
+        <input type="text" name="searchString" value="@ViewBag.Search" class="form-control" placeholder="🔍 Rechercher..." />
+    </div>
+    <div class="col-md-3">
+        <select name="categorieId" class="form-select">
+            <option value="">📁 Catégories</option>
+            @foreach (var cat in ViewBag.Categories)
+            {
+                var selected = (cat.Id == ViewBag.SelectedCategorieId) ? "selected" : "";
+                @:<option value="@cat.Id" @selected>@cat.Nom</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary">Filtrer</button>
+    </div>
+</form>
 
-<table class="table table-striped table-bordered">
+<a asp-action="Create" class="btn btn-success mb-3">➕ Ajouter une ressource</a>
+
+<table class="table table-striped table-bordered align-middle">
     <thead class="table-dark">
         <tr>
-            <th>Nom</th>
-            <th>Type</th>
-            <th>Lien</th>
-            <th>Actions</th>
+            <th>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewData["NomSortParam"]"
+                   asp-route-searchString="@ViewBag.Search"
+                   asp-route-categorieId="@ViewBag.SelectedCategorieId"
+                   class="text-white text-decoration-none">
+                    📄 Nom
+                </a>
+            </th>
+            <th>📁 Catégories</th>
+            <th>🔗 Lien</th>
+            <th class="text-end">⚙️ Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -22,10 +49,17 @@
         {
             <tr>
                 <td>@item.Nom</td>
-                <td>@item.Type</td>
-                <td><a href="@item.Lien" target="_blank">@item.Lien</a></td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">✏️</a>
+                    @string.Join(", ", item.Categories.Select(c => c.Nom))
+                </td>
+                <td>
+                    <div class="d-flex flex-column">
+                        <a href="@item.Lien" target="_blank" class="btn btn-sm btn-outline-info mb-1">🌐 Voir</a>
+                        <small class="text-break text-muted">@item.Lien</small>
+                    </div>
+                </td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm me-1">✏️</a>
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">🗑</a>
                 </td>
             </tr>

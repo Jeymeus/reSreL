@@ -31,7 +31,7 @@
         <div class="card-footer d-flex justify-content-between">
             @if (ViewBag.CanEdit == true)
             {
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-source="PublicList" class="btn btn-warning">
                     ✏️ Modifier
                 </a>
             }
