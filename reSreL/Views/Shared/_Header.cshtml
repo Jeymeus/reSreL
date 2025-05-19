@@ -1,12 +1,14 @@
 ﻿@using System.Security.Claims
 
-<header class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom shadow-sm bg-white">
-    <a href="/" class="navbar-brand fw-bold fs-4 text-dark">reSreL</a>
+<header class="px-4 border-bottom shadow-sm bg-white d-flex justify-content-between align-items-center" style="height: 115px;">
+    <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index" style="text-decoration: none;">
+        <img src="~/images/Logo Ressources Relationelles.png" alt="Logo CESIZen" style="height: 110px; object-fit: contain;" />
+    </a>
 
-    <div>
+    <div class="d-flex align-items-center" style="height: 100%; align-items: center;">
         @if (User.Identity.IsAuthenticated)
         {
-            <span class="me-3">👋 Bonjour, @User.Identity.Name</span>
+            <span class="me-3 text-dark fw-semibold">👋 Bonjour, @User.Identity.Name</span>
             <a class="btn btn-outline-danger" href="/Users/Logout">Déconnexion</a>
         }
         else

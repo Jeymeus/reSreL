@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using reSreLData.Repositories;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace reSreL.Controllers
@@ -132,6 +133,101 @@ namespace reSreL.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Users");
+        }
+
+
+
+
+    // GET : /Users/Profil
+    public async Task<IActionResult> Profil()
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId");
+            if (userIdClaim == null) return RedirectToAction("Login");
+
+            int userId = int.Parse(userIdClaim.Value);
+            var user = await _userRepository.GetByIdAsync(userId);
+            return View(user);
+
+        }
+
+
+        // GET : /Users/EditProfil
+        public async Task<IActionResult> EditProfil()
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId");
+            if (userIdClaim == null) return RedirectToAction("Login");
+
+            int userId = int.Parse(userIdClaim.Value);
+            var user = await _userRepository.GetByIdAsync(userId);
+            return View(user);
+        }
+
+        // POST : /Users/EditProfil
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfil(User updatedUser)
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId");
+            if (userIdClaim == null) return RedirectToAction("Login");
+
+            int userId = int.Parse(userIdClaim.Value);
+            var currentUser = await _userRepository.GetByIdAsync(userId);
+            if (currentUser == null) return NotFound();
+
+            currentUser.Nom = updatedUser.Nom;
+            currentUser.Prenom = updatedUser.Prenom;
+            currentUser.Email = updatedUser.Email;
+
+            await _userRepository.UpdateAsync(currentUser);
+
+            return RedirectToAction("Profil");
+        }
+
+
+        // GET : /Users/ChangerMotDePasse
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(string ancienMotDePasse, string nouveauMotDePasse, string confirmerMotDePasse)
+        {
+            if (nouveauMotDePasse != confirmerMotDePasse)
+            {
+                ModelState.AddModelError("", "Le nouveau mot de passe et sa confirmation ne correspondent pas.");
+                return View();
+            }
+
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId");
+            if (userIdClaim == null) return RedirectToAction("Login");
+
+            int userId = int.Parse(userIdClaim.Value);
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Utilisateur introuvable.");
+                return View();
+            }
+
+            // Vérifie le mot de passe actuel avec le PasswordHasher
+            var hasher = new PasswordHasher<User>();
+            var result = hasher.VerifyHashedPassword(user, user.MotDePasse, ancienMotDePasse);
+            if (result != PasswordVerificationResult.Success)
+            {
+                ModelState.AddModelError("", "Mot de passe actuel incorrect.");
+                return View();
+            }
+
+            // Mets juste le nouveau mot de passe brut
+            user.MotDePasse = nouveauMotDePasse;
+
+            // C'est UpdateAsync qui hashera
+            await _userRepository.UpdateAsync(user);
+
+            return RedirectToAction("Profil");
         }
 
     }
