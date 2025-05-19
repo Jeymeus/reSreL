@@ -1,53 +1,125 @@
 ﻿@model IEnumerable<reSreLData.Models.User>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "👥 Liste des utilisateurs";
 }
 
-<h1>Index</h1>
+<div class="container mt-4">
+    <div class="card shadow p-4">
+        <h2 class="mb-4 text-primary">@ViewData["Title"]</h2>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nom)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Prenom)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Actif)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nom)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Prenom)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Actif)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+        <!-- Barre de recherche + filtre -->
+        <form method="get" asp-action="Index" class="row mb-4">
+            <div class="col-md-5">
+                <input type="text" name="searchString" value="@ViewBag.Search" class="form-control" placeholder="🔍 Rechercher..." />
+            </div>
+            <div class="col-md-3">
+                <select name="isActive" class="form-select">
+                    <option value="">🟢 Statut</option>
+                    <option value="true" selected="@(ViewBag.IsActive == true)">Actif</option>
+                    <option value="false" selected="@(ViewBag.IsActive == false)">Inactif</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary">Filtrer</button>
+            </div>
+        </form>
+
+        <!-- Formulaire caché pour CSRF token -->
+        <form id="csrfForm" method="post" asp-controller="Users" asp-action="ToggleActif">
+            @Html.AntiForgeryToken()
+        </form>
+
+        <!-- Tableau -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@ViewData["NomSortParam"]"
+                               asp-route-searchString="@ViewBag.Search"
+                               asp-route-isActive="@ViewBag.IsActive"
+                               class="text-white text-decoration-none">
+                                🧑 Nom
+                            </a>
+                        </th>
+                        <th>🪪 Prénom</th>
+                        <th>📧 Email</th>
+                        <th>🔓 Statut</th>
+                        <th class="text-end">⚙️ Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Nom</td>
+                            <td>@item.Prenom</td>
+                            <td>@item.Email</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span id="statut-@item.Id" class="badge @(item.Actif ? "bg-success" : "bg-secondary")">
+                                        @(item.Actif ? "Actif" : "Inactif")
+                                    </span>
+                                    <div class="form-check form-switch m-0">
+                                        <input class="form-check-input toggle-actif"
+                                               type="checkbox"
+                                               role="switch"
+                                               data-id="@item.Id"
+                                        @(item.Actif ? "checked" : "") />
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="text-end">
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">🗑</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+                document.querySelectorAll('.toggle-actif').forEach(toggle => {
+            toggle.addEventListener('change', async function () {
+                const userId = this.dataset.id;
+                const token = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]').value;
+                const badge = document.getElementById(`statut-${userId}`);
+                const originalState = this.checked;
+
+                // Optimiste : feedback immédiat
+                badge.textContent = "⏳ ...";
+                badge.className = "badge bg-warning text-dark";
+
+                try {
+                    const response = await fetch(`/Users/ToggleActif?id=${userId}`, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok || !('actif' in result)) {
+                        throw new Error("Réponse invalide");
+                    }
+
+                    badge.textContent = result.actif ? "Actif" : "Inactif";
+                    badge.className = "badge " + (result.actif ? "bg-success" : "bg-secondary");
+                } catch (err) {
+                    alert("❌ Une erreur est survenue. Veuillez réessayer.");
+                    this.checked = !originalState;
+                    badge.textContent = originalState ? "Actif" : "Inactif";
+                    badge.className = "badge " + (originalState ? "bg-success" : "bg-secondary");
+                }
+            });
+        });
+
+    </script>
 }
-    </tbody>
-</table>

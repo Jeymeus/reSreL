@@ -1,29 +1,29 @@
 ﻿<!-- Views/Shared/_NavbarPublic.cshtml -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom shadow-sm">
     <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
-                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <a class="navbar-brand fw-bold text-dark" href="/">🏠 reSreL</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarContent" aria-controls="navbarContent"
+                aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="/">Accueil</a>
+                    <a class="nav-link" href="/">🏡 Accueil</a>
                 </li>
-
                 <li class="nav-item">
-                    <a class="nav-link" href="/Ressources/PublicList">Ressources</a>
+                    <a class="nav-link" href="/Ressources/PublicList">📚 Ressources</a>
                 </li>
-
                 <li class="nav-item">
-                    <a class="nav-link" href="/Categories/PublicList">Catégories</a>
+                    <a class="nav-link" href="/Categories/PublicList">🏷️ Catégories</a>
                 </li>
-
                 @if (User.Identity.IsAuthenticated)
                 {
                     <li class="nav-item">
-                        <a class="nav-link" href="/Users/Profil">Profil</a>
+                        <a class="nav-link" href="/Users/Profile">👤 Profil</a>
                     </li>
                 }
             </ul>

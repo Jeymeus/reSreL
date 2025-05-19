@@ -20,10 +20,41 @@ namespace reSreL.Controllers
         }
 
         // GET: /Users
-        public async Task<IActionResult> Index()
+        // GET: /Users
+        public async Task<IActionResult> Index(string searchString, bool? isActive, string sortOrder)
         {
-            var users = await _userRepository.GetAllAsync();
-            return View(users);
+            var users = (await _userRepository.GetAllAsync()).AsQueryable();
+
+            // 🔍 Recherche
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToLower();
+                users = users.Where(u =>
+                    (!string.IsNullOrEmpty(u.Nom) && u.Nom.ToLower().Contains(searchString)) ||
+                    (!string.IsNullOrEmpty(u.Prenom) && u.Prenom.ToLower().Contains(searchString)) ||
+                    (!string.IsNullOrEmpty(u.Email) && u.Email.ToLower().Contains(searchString))
+                );
+            }
+
+            // 🟢 Filtre Actif/Inactif
+            if (isActive.HasValue)
+            {
+                users = users.Where(u => u.Actif == isActive.Value);
+            }
+
+            // 🔃 Tri
+            ViewData["NomSortParam"] = string.IsNullOrEmpty(sortOrder) ? "nom_desc" : "";
+            users = sortOrder switch
+            {
+                "nom_desc" => users.OrderByDescending(u => u.Nom),
+                _ => users.OrderBy(u => u.Nom)
+            };
+
+            // ViewBag pour garder les filtres actifs dans la vue
+            ViewBag.Search = searchString;
+            ViewBag.IsActive = isActive;
+
+            return View(users.ToList());
         }
 
         // GET: /Users/Create
@@ -135,9 +166,6 @@ namespace reSreL.Controllers
             return RedirectToAction("Login", "Users");
         }
 
-
-
-
     // GET : /Users/Profil
     public async Task<IActionResult> Profil()
         {
@@ -230,5 +258,22 @@ namespace reSreL.Controllers
             return RedirectToAction("Profil");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ToggleActif(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null) return NotFound();
+
+            user.Actif = !user.Actif;
+            var success = await _userRepository.UpdateAsync(user);
+
+            if (!success)
+                return StatusCode(500);
+
+            return Json(new { actif = user.Actif });
+
+        }
+
     }
+
 }

@@ -1,25 +1,21 @@
 ﻿<!-- Views/Shared/_NavbarAdmin.cshtml -->
-<nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-    <div class="position-sticky pt-3">
-        <ul class="nav flex-column">
+<aside class="d-none d-md-block bg-light border-end position-fixed h-100"
+       style="width: 240px; top: 0; left: 0; z-index: 1000; padding-top: 72px;">
+    <div class="pt-4 px-3">
+        <h6 class="text-uppercase text-muted">🛠️ Admin Panel</h6>
+        <ul class="nav flex-column mt-3">
             <li class="nav-item">
-                <a class="nav-link" href="/Users/Create">➕ Créer un compte</a>
+                <a class="nav-link text-dark" href="/Users">👤 Utilisateurs</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/Users">👤 Utilisateurs</a>
+                <a class="nav-link text-dark" href="/Ressources">📁 Ressources</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/Ressources/PublicList">Ressources</a>
+                <a class="nav-link text-dark" href="/Categories">🏷️ Catégories</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/Ressources">Ajouter une ressource</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/Categories">🏷️ Catégories</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/Commentaires">💬 Commentaires</a>
+                <a class="nav-link text-dark" href="/Commentaires">💬 Commentaires</a>
             </li>
         </ul>
     </div>
-</nav>
+</aside>

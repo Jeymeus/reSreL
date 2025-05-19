@@ -108,6 +108,9 @@ namespace reSreLData.Migrations
                     b.Property<int>("RessourceId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("RessourceId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -120,6 +123,10 @@ namespace reSreLData.Migrations
 
                     b.HasIndex("RessourceId")
                         .IsUnique();
+
+                    b.HasIndex("RessourceId1")
+                        .IsUnique()
+                        .HasFilter("[RessourceId1] IS NOT NULL");
 
                     b.ToTable("Games");
                 });
@@ -275,6 +282,10 @@ namespace reSreLData.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("reSreLData.Models.Ressource", null)
+                        .WithOne("Game")
+                        .HasForeignKey("reSreLData.Models.Game", "RessourceId1");
+
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Opponent");
@@ -315,6 +326,11 @@ namespace reSreLData.Migrations
             modelBuilder.Entity("reSreLData.Models.Game", b =>
                 {
                     b.Navigation("Moves");
+                });
+
+            modelBuilder.Entity("reSreLData.Models.Ressource", b =>
+                {
+                    b.Navigation("Game");
                 });
 #pragma warning restore 612, 618
         }

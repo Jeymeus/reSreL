@@ -1,48 +1,43 @@
 ﻿@model reSreLData.Models.Commentaire
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "📝 Détails du commentaire";
 }
 
-<h1>Details</h1>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
 
-<div>
-    <h4>Commentaire</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Contenu)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Contenu)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DateCreation)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DateCreation)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Valide)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Valide)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Utilisateur)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Utilisateur.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Ressource)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Ressource.Lien)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                    <dl class="row">
+                        <dt class="col-sm-4">📝 Contenu</dt>
+                        <dd class="col-sm-8">@Model.Contenu</dd>
+
+                        <dt class="col-sm-4">📅 Date de création</dt>
+                        <dd class="col-sm-8">@Model.DateCreation.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-4">📌 Statut</dt>
+                        <dd class="col-sm-8">@((Model.Valide) ? "✅ Validé" : "⏳ En attente")</dd>
+
+                        <dt class="col-sm-4">👤 Utilisateur</dt>
+                        <dd class="col-sm-8">@Model.Utilisateur?.Email</dd>
+
+                        <dt class="col-sm-4">🔗 Ressource liée</dt>
+                        <dd class="col-sm-8">
+                            <a href="@Model.Ressource?.Lien" target="_blank">@Model.Ressource?.Lien</a>
+                        </dd>
+                    </dl>
+
+                    <div class="d-flex justify-content-between flex-wrap mt-4 gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">✏️ Modifier</a>
+                        <a asp-action="Index" class="btn btn-secondary">↩️ Retour à la liste</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

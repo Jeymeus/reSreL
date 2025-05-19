@@ -1,46 +1,54 @@
 ﻿@model List<reSreLData.Models.Commentaire>
 
-<table class="table table-bordered table-hover mt-3">
-    <thead>
-        <tr>
-            <th>Contenu</th>
-            <th>Auteur</th>
-            <th>Ressource</th>
-            <th>Date</th>
-            <th>Statut</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (!Model.Any())
-        {
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle mb-0">
+        <thead class="table-dark">
             <tr>
-                <td colspan="6" class="text-center text-muted">Aucun commentaire.</td>
+                <th>📝 Contenu</th>
+                <th>👤 Auteur</th>
+                <th>📚 Ressource</th>
+                <th>📅 Date</th>
+                <th>📌 Statut</th>
+                <th class="text-center">⚙️ Actions</th>
             </tr>
-        }
-        else
-        {
-            @foreach (var c in Model)
+        </thead>
+        <tbody>
+            @if (!Model.Any())
             {
-                <tr class="@(c.Valide ? "table-success" : "table-warning")">
-                    <td>@c.Contenu</td>
-                    <td>@c.Utilisateur.Nom @c.Utilisateur.Prenom</td>
-                    <td>@c.Ressource.Nom</td>
-                    <td>@c.DateCreation.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@(c.Valide ? "✅ Validé" : "⏳ En attente")</td>
-                    <td>
-                        @if (!c.Valide)
-                        {
-                            <form method="post" asp-action="Valider" asp-route-id="@c.Id" class="d-inline">
-                                <button class="btn btn-sm btn-success">Valider</button>
-                            </form>
-                        }
-                        <form method="post" asp-action="Delete" asp-route-id="@c.Id" class="d-inline" onsubmit="return confirm('Supprimer ce commentaire ?');">
-                            <button class="btn btn-sm btn-danger">Supprimer</button>
-                        </form>
-                    </td>
+                <tr>
+                    <td colspan="6" class="text-center text-muted">Aucun commentaire.</td>
                 </tr>
             }
-        }
-    </tbody>
-</table>
+            else
+            {
+                @foreach (var c in Model)
+                {
+                    <tr class="@(c.Valide ? "table-success" : "table-warning")">
+                        <td>@c.Contenu</td>
+                        <td>@c.Utilisateur?.Nom @c.Utilisateur?.Prenom</td>
+                        <td>@c.Ressource?.Nom</td>
+                        <td>@c.DateCreation.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@(c.Valide ? "✅ Validé" : "⏳ En attente")</td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                @if (!c.Valide)
+                                {
+                                    <form method="post" asp-action="Valider" asp-route-id="@c.Id" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success">✅ Valider</button>
+                                    </form>
+                                }
+                                <form method="post"
+                                      asp-action="Delete"
+                                      asp-route-id="@c.Id"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Supprimer ce commentaire ?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">🗑 Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,14 +1,16 @@
 ﻿@model reSreLData.Models.Ressource
 @using System.Security.Claims
 @using reSreLData.Models
+
 @{
     ViewData["Title"] = "Détails de la ressource";
     var commentaires = ViewBag.Commentaires as List<Commentaire>;
 }
 
 <div class="container mt-5">
-    <!-- Carte de la ressource -->
-    <div class="card shadow">
+
+    <!-- Ressource -->
+    <div class="card shadow mb-4">
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0"><i class="bi bi-info-circle"></i> Détails de la ressource</h4>
         </div>
@@ -23,15 +25,16 @@
                 <dt class="col-sm-3">🔗 Lien</dt>
                 <dd class="col-sm-9">
                     <a href="@Model.Lien" target="_blank" class="btn btn-outline-primary btn-sm">
-                        Ouvrir la ressource
+                        🌐 Ouvrir la ressource
                     </a>
+                    <div class="mt-1 text-muted small">@Model.Lien</div>
                 </dd>
             </dl>
         </div>
-        <div class="card-footer d-flex justify-content-between">
+        <div class="card-footer d-flex justify-content-between flex-wrap gap-2">
             @if (ViewBag.CanEdit == true)
             {
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-source="PublicList" class="btn btn-warning">
                     ✏️ Modifier
                 </a>
             }
@@ -40,11 +43,13 @@
             </a>
         </div>
     </div>
-    <!-- Liste des commentaires validés -->
-    <div class="card mt-4">
+
+    <!-- Commentaires -->
+    <div class="card shadow-sm mb-4">
         <div class="card-header bg-info text-white">
             <h5 class="mb-0"><i class="bi bi-chat-dots"></i> Commentaires</h5>
         </div>
+
         @if (commentaires != null && commentaires.Any())
         {
             <ul class="list-group list-group-flush">
@@ -62,15 +67,14 @@
         }
         else
         {
-            <div class="card-body text-muted">
-                Aucun commentaire pour le moment.
-            </div>
+            <div class="card-body text-muted">Aucun commentaire pour le moment.</div>
         }
     </div>
-    <!-- Formulaire de commentaire -->
+
+    <!-- Formulaire -->
     @if (User.Identity.IsAuthenticated)
     {
-        <div class="card mt-4">
+        <div class="card shadow-sm mb-4">
             <div class="card-header bg-secondary text-white">
                 <h5 class="mb-0"><i class="bi bi-chat-left-text"></i> Ajouter un commentaire</h5>
             </div>
@@ -94,7 +98,7 @@
     }
     else
     {
-        <div class="alert alert-info mt-4">
+        <div class="alert alert-info">
             🔐 Connectez-vous pour ajouter un commentaire.
         </div>
     }

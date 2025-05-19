@@ -4,17 +4,31 @@
     ViewData["Title"] = "Ajouter une catégorie";
 }
 
-<h1 class="mb-4">@ViewData["Title"]</h1>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div class="mb-3">
+                            <label asp-for="Nom" class="form-label">Nom de la catégorie</label>
+                            <input asp-for="Nom" class="form-control" />
+                            <span asp-validation-for="Nom" class="text-danger"></span>
+                        </div>
 
-<form asp-action="Create">
-    <div class="mb-3">
-        <label asp-for="Nom" class="form-label"></label>
-        <input asp-for="Nom" class="form-control" />
-        <span asp-validation-for="Nom" class="text-danger"></span>
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">Retour</a>
+                            <button type="submit" class="btn btn-success">Ajouter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    <button type="submit" class="btn btn-success">Ajouter</button>
-    <a asp-action="Index" class="btn btn-secondary">Retour</a>
-</form>
+</div>
 
 @section Scripts {
     @{

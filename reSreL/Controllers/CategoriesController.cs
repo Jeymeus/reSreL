@@ -126,6 +126,7 @@ namespace reSreL.Controllers
         }
 
         // GET: Categories/Delete/5
+        // GET: Categories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             await SetSharedViewDataAsync();
@@ -133,28 +134,39 @@ namespace reSreL.Controllers
             if (id == null) return NotFound();
 
             var categorie = await _context.Categories
+                .Include(c => c.Ressources) // 🔥 Charge les ressources liées
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (categorie == null) return NotFound();
 
             return View(categorie);
         }
+
 
         // POST: Categories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await SetSharedViewDataAsync();
+            var categorie = await _context.Categories
+                .Include(c => c.Ressources)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
-            var categorie = await _context.Categories.FindAsync(id);
-            if (categorie != null)
+            if (categorie == null)
+                return NotFound();
+
+            if (categorie.Ressources.Any())
             {
-                _context.Categories.Remove(categorie);
-                await _context.SaveChangesAsync();
+                TempData["DeleteError"] = "❌ Impossible de supprimer : la catégorie est liée à des ressources.";
+                return RedirectToAction(nameof(Delete), new { id }); // Retour sur la page de suppression
             }
+
+            _context.Categories.Remove(categorie);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
+
 
         private bool CategorieExists(int id)
         {

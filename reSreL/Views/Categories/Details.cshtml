@@ -4,32 +4,41 @@
     ViewData["Title"] = $"📁 {Model.Nom}";
 }
 
-<h2 class="mb-4">📁 Catégorie : @Model.Nom</h2>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <h2 class="mb-4">📁 Catégorie : @Model.Nom</h2>
 
-@if (Model.Ressources == null || !Model.Ressources.Any())
-{
-    <div class="alert alert-info">Aucune ressource n'est associée à cette catégorie.</div>
-}
-else
-{
-    <h4 class="mb-3">📚 Ressources associées :</h4>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-        @foreach (var ressource in Model.Ressources)
-        {
-            <div class="col">
-                <div class="card shadow-sm h-100 border-0">
-                    <div class="card-body">
-                        <h6 class="card-title fw-bold">@ressource.Nom</h6>
-                        <p class="mb-2"><strong>Type :</strong> @ressource.Type</p>
-                        <a asp-controller="Ressources"
-                           asp-action="Details"
-                           asp-route-id="@ressource.Id"
-                           class="btn btn-sm btn-outline-primary">
-                            🔍 Voir la ressource
-                        </a>
-                    </div>
+            @if (Model.Ressources == null || !Model.Ressources.Any())
+            {
+                <div class="alert alert-info">Aucune ressource n'est associée à cette catégorie.</div>
+            }
+            else
+            {
+                <h4 class="mb-3">📚 Ressources associées :</h4>
+
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+                    @foreach (var ressource in Model.Ressources)
+                    {
+                        <div class="col">
+                            <div class="card h-100 shadow-sm border-0">
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title fw-bold">@ressource.Nom</h6>
+                                    <p class="text-muted mb-3"><strong>Type :</strong> @ressource.Type</p>
+                                    <div class="mt-auto">
+                                        <a asp-controller="Ressources"
+                                           asp-action="Details"
+                                           asp-route-id="@ressource.Id"
+                                           class="btn btn-sm btn-outline-primary w-100">
+                                            🔍 Voir la ressource
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
-}
+</div>
