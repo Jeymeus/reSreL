@@ -82,7 +82,7 @@ namespace reSreL.Controllers
             ViewBag.Commentaires = commentaires;
 
             // Si c'est une activité, charger le Game associé
-            bool isActivite = ressource.Categories.Any(c => c.Nom.ToLower() == "activité");
+            bool isActivite = ressource.Categories.Any(c => c.Nom.ToLower() == "Activité");
 
             if (isActivite)
             {
@@ -135,7 +135,7 @@ namespace reSreL.Controllers
                 await _ressourceRepository.CreateAsync(ressource);
 
                 // 🧠 Création auto d'une Game si "activité"
-                var isActivite = ressource.Categories.Any(c => c.Nom.ToLower() == "activité");
+                var isActivite = ressource.Categories.Any(c => c.Nom.ToLower() == "Activité");
                 if (isActivite)
                 {
                     var game = new Game
