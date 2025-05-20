@@ -12,8 +12,9 @@
                     <h3><i class="bi bi-person-plus-fill me-2"></i>Créer un compte</h3>
                 </div>
                 <div class="card-body bg-light">
-                    <form asp-action="Create" novalidate>
+                    <form asp-action="Create" novalidate id="registerForm">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <div id="customPasswordAlert"></div>
 
                         <div class="mb-3">
                             <label asp-for="Nom" class="form-label"></label>
@@ -35,14 +36,12 @@
 
                         <div class="mb-3">
                             <label asp-for="MotDePasse" class="form-label"></label>
-                            <input asp-for="MotDePasse" class="form-control" type="password" />
+                            <input asp-for="MotDePasse" class="form-control" type="password" id="MotDePasse" />
                             <span asp-validation-for="MotDePasse" class="text-danger"></span>
                         </div>
 
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" asp-for="Actif" />
-                            <label class="form-check-label" asp-for="Actif"></label>
-                        </div>
+                        <input type="hidden" name="Actif" value="true" />
+
 
                         <div class="d-flex justify-content-between">
                             <button type="submit" class="btn btn-success">
@@ -66,4 +65,39 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("registerForm");
+            const passwordInput = document.getElementById("MotDePasse");
+            const alertContainer = document.getElementById("customPasswordAlert");
+
+            form.addEventListener("submit", function (e) {
+                const password = passwordInput.value;
+
+                const hasLowercase = /[a-z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasMinLength = password.length >= 8;
+
+                alertContainer.innerHTML = "";
+
+                if (!hasLowercase || !hasNumber || !hasSpecialChar || !hasMinLength) {
+                    e.preventDefault();
+
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            🔐 Le mot de passe doit contenir au moins :
+                            <ul class="mb-0">
+                                <li>8 caractères</li>
+                                <li>1 lettre minuscule</li>
+                                <li>1 chiffre</li>
+                                <li>1 caractère spécial</li>
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                        </div>
+                    `;
+                }
+            });
+        });
+    </script>
 }
