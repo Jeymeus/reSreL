@@ -71,9 +71,15 @@
                                     </div>
                                 </div>
                             </td>
-
                             <td class="text-end">
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">🗑</a>
+                                <form asp-action="DeleteConfirmed" asp-route-id="@item.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm"
+                                            onclick="return confirm('⚠️ Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
+                                        Supprimer
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     }
@@ -85,7 +91,7 @@
 
 @section Scripts {
     <script>
-                document.querySelectorAll('.toggle-actif').forEach(toggle => {
+        document.querySelectorAll('.toggle-actif').forEach(toggle => {
             toggle.addEventListener('change', async function () {
                 const userId = this.dataset.id;
                 const token = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]').value;
@@ -120,6 +126,5 @@
                 }
             });
         });
-
     </script>
 }

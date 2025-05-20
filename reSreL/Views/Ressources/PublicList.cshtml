@@ -5,29 +5,31 @@
 }
 
 <div class="container mt-5">
-    <h2 class="mb-4">@ViewData["Title"]</h2>
+    <h2 class="mb-4 fw-bold text-primary">@ViewData["Title"]</h2>
 
     <!-- Barre de filtre -->
-    <form method="get" class="mb-4">
-        <div class="row gy-2 gx-3 align-items-end">
+    <form method="get" class="mb-5">
+        <div class="row gy-2 gx-3 align-items-end bg-light p-4 rounded shadow-sm">
             <div class="col-md-5">
+                <label class="form-label">🔍 Rechercher</label>
                 <input type="text" name="search" value="@ViewBag.Search"
-                       class="form-control" placeholder="🔍 Rechercher une ressource..." />
+                       class="form-control shadow-sm" placeholder="Nom, type, catégorie..." />
             </div>
             <div class="col-md-4">
-                <select name="categorieId" class="form-select">
-                    <option value="">📁 Toutes les catégories</option>
+                <label class="form-label">📁 Catégorie</label>
+                <select name="categorieId" class="form-select shadow-sm">
+                    <option value="">Toutes les catégories</option>
                     @foreach (var cat in ViewBag.Categories as List<reSreLData.Models.Categorie>)
-                {
-                    var selectedAttr = ViewBag.CategorieId != null && (int)ViewBag.CategorieId == cat.Id
-                        ? "selected"
-                        : "";
-                    @:<option value="@cat.Id" @selectedAttr>@cat.Nom</option>
-                }
+                    {
+                        var selectedAttr = ViewBag.CategorieId != null && (int)ViewBag.CategorieId == cat.Id
+                            ? "selected"
+                            : "";
+                        @:<option value="@cat.Id" @selectedAttr>@cat.Nom</option>
+                    }
                 </select>
             </div>
             <div class="col-md-3">
-                <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                <button type="submit" class="btn btn-primary w-100">🎯 Filtrer</button>
             </div>
         </div>
     </form>
@@ -37,18 +39,26 @@
         @foreach (var ressource in Model)
         {
             <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">@ressource.Nom</h5>
-                        <p class="mb-1"><strong>Type :</strong> @ressource.Type</p>
-                        <p class="mb-1"><strong>Ajouté par :</strong> @ressource.User?.Prenom</p>
-                        <p class="mb-2">
-                            <strong>Catégories :</strong><br />
+                <div class="card h-100 border-0 resource-card rounded-4 bg-white">
+
+                    <div class="card-body d-flex flex-column p-4">
+                        <h4 class="card-title fw-bold text-primary border-bottom pb-2 mb-3">
+                            <i class="bi bi-journal-richtext me-2"></i> @ressource.Nom
+                        </h4>
+
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-person-circle me-1"></i>
+                            <strong>Ajouté par :</strong> @ressource.User?.Prenom
+                        </p>
+
+                        <div class="mb-3">
+                            <strong><i class="bi bi-tags-fill me-1"></i> Catégories :</strong><br />
                             @foreach (var cat in ressource.Categories)
                             {
-                                <span class="badge bg-primary me-1">@cat.Nom</span>
+                                <span class="badge rounded-pill bg-info text-dark me-1 mb-1">@cat.Nom</span>
                             }
-                        </p>
+                        </div>
+
                         <div class="mt-auto">
                             <a asp-controller="Ressources"
                                asp-action="Details"
@@ -63,3 +73,23 @@
         }
     </div>
 </div>
+
+<!-- Styles personnalisés -->
+<style>
+    .resource-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05); /* Ombre douce par défaut */
+    }
+
+    .resource-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08); /* Ombre légère au survol */
+    }
+
+    .card-title {
+        font-size: 1.3rem;
+    }
+</style>
+
+<!-- Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
