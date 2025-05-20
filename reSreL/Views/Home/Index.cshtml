@@ -5,13 +5,13 @@
 <div class="container py-5">
     <!-- Titre principal -->
     <div class="text-center mb-5">
-        <h1 class="display-3 fw-bold text-primary">
-            Bienvenue sur <span class="text-dark">reSreL</span>
+        <h1 class="display-4 fw-bold text-primary">
+            Bienvenue sur <span class="text-dark">Ressources Relationnelles</span>
         </h1>
         <p class="lead text-muted">
-            Une plateforme collaborative pour gérer et partager vos ressources efficacement.
+            📚 Une plateforme collaborative pour gérer et partager vos ressources efficacement.
         </p>
-        <a href="/Ressources/PublicList" class="btn btn-primary btn-lg mt-3">
+        <a href="/Ressources/PublicList" class="btn btn-lg btn-primary px-4 py-2 shadow-sm mt-3">
             🔍 Explorer les ressources
         </a>
     </div>
@@ -19,36 +19,51 @@
     <!-- Cartes d'information -->
     <div class="row row-cols-1 row-cols-md-3 g-4">
         <div class="col">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">📦 Ressources</h5>
-                    <p class="card-text">
-                        Accédez à une base de ressources variées et documentées, partagées par les utilisateurs.
+            <div class="card info-card h-100 border-0 rounded-4 shadow-sm bg-light">
+                <div class="card-body text-center p-4">
+                    <div class="display-5 mb-3">📦</div>
+                    <h5 class="fw-semibold text-dark">Ressources</h5>
+                    <p class="text-muted">
+                        Accédez à une base variée de ressources partagées et organisées par les utilisateurs.
                     </p>
                 </div>
             </div>
         </div>
 
         <div class="col">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">🏷️ Catégories</h5>
-                    <p class="card-text">
-                        Parcourez les ressources par thématique pour trouver plus rapidement ce dont vous avez besoin.
+            <div class="card info-card h-100 border-0 rounded-4 shadow-sm bg-light">
+                <div class="card-body text-center p-4">
+                    <div class="display-5 mb-3">🏷️</div>
+                    <h5 class="fw-semibold text-dark">Catégories</h5>
+                    <p class="text-muted">
+                        Filtrez les ressources par thématique pour mieux cibler vos recherches.
                     </p>
                 </div>
             </div>
         </div>
 
         <div class="col">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">👥 Communauté</h5>
-                    <p class="card-text">
-                        Partagez, commentez et interagissez avec les autres utilisateurs pour enrichir la plateforme.
+            <div class="card info-card h-100 border-0 rounded-4 shadow-sm bg-light">
+                <div class="card-body text-center p-4">
+                    <div class="display-5 mb-3">👥</div>
+                    <h5 class="fw-semibold text-dark">Communauté</h5>
+                    <p class="text-muted">
+                        Échangez, commentez et enrichissez la plateforme avec vos propres contributions.
                     </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Styles personnalisés -->
+<style>
+    .info-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08);
+        }
+</style>

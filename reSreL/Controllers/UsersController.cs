@@ -108,7 +108,7 @@ namespace reSreL.Controllers
         }
 
         // POST: /Users/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
