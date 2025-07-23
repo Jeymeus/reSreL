@@ -16,14 +16,14 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore reSreL.sln
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build reSreL.sln --configuration Release --no-restore
 
       - name: Run Unit Tests
         run: |
-          dotnet test reSreLTests/reSreLTests.csproj \
+          dotnet test reSreL.sln \
             --configuration Release \
             --no-build \
             --verbosity normal \
@@ -36,5 +36,3 @@ jobs:
           name: dotnet-coverage-report
           path: ./coverage
           retention-days: 3
-
- 
