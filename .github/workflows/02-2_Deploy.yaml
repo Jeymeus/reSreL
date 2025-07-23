@@ -1,5 +1,5 @@
 ﻿
-name: 02-2 - Deploy CESIZen
+name: 02-2 - Deploy reSreL
 
 on:
   workflow_call:
@@ -28,7 +28,7 @@ jobs:
           port: ${{ secrets.AZURE_PORT }}
           password: ${{ secrets.AZURE_PWD }}
           source: "./docker-compose.yml"
-          target: "/opt/cesizen/"
+          target: "/opt/reSreL/"
 
       - name: Setup Environment Variables
         uses: appleboy/ssh-action@v1.0.3
@@ -38,8 +38,8 @@ jobs:
           port: ${{ secrets.AZURE_PORT }}
           password: ${{ secrets.AZURE_PWD }}
           script: |
-            cd /opt/cesizen
-            
+            cd /opt/reSreL
+
             # Créer le fichier .env avec le mot de passe de la base de données
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" > .env
             echo "ASPNETCORE_ENVIRONMENT=Production" >> .env
@@ -56,7 +56,7 @@ jobs:
           password: ${{ secrets.AZURE_PWD }}
 
           script: |
-            cd /opt/cesizen
+            cd /opt/reSreL
             
             # Login Docker Registry
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -71,7 +71,7 @@ jobs:
             
             # CORRECTION: Nettoyer le réseau existant problématique
             echo "Cleaning up existing network..."
-            docker network rm cesizen-network 2>/dev/null || true
+            docker network rm reSreL-network 2>/dev/null || true
             
             # Arrêter les anciens conteneurs
             echo "Stopping existing containers..."
@@ -82,7 +82,7 @@ jobs:
             fi
             
             # Déploiement Canary (10% du trafic)
-            echo "🚀 Starting canary deployment for CESIZen..."
+            echo "🚀 Starting canary deployment for reSreL..."
             
             # Lancer les services avec docker compose
             if command -v "docker compose" >/dev/null 2>&1; then
@@ -104,11 +104,11 @@ jobs:
                 echo "Deployment failed!"
                 echo "Debugging information:"
                 echo "Container status:"
-                docker ps --filter "name=cesizen" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+                docker ps --filter "name=reSreL" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
                 echo "Application logs:"
-                docker logs cesizen_app --tail=20 || true
+                docker logs reSreL_app --tail=20 || true
                 echo "Database logs:"
-                docker logs cesizen_database --tail=20 || true
+                docker logs reSreL_database --tail=20 || true
                 
                 # CORRECTION: Essayer de redémarrer avec docker-compose en fallback (sans nom de service inexistant)
                 echo "Attempting fallback restart..."
@@ -127,13 +127,13 @@ jobs:
             # Nettoyer les anciennes images
             docker image prune -f
             
-            echo "🚀 CESIZen deployment completed successfully!"
+            echo "🚀 reSreL deployment completed successfully!"
 
       - name: Deployment Summary
         if: always()
         run: |
-          echo "## 🚀 CESIZen Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Application**: CESIZen (Well-being Management)" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 reSreL Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Application**: reSreL (Well-being Management)" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment**: Production (Azure VM)" >> $GITHUB_STEP_SUMMARY
           echo "- **Strategy**: Canary Deployment (10% → 100%)" >> $GITHUB_STEP_SUMMARY
           echo "- **Image**: ghcr.io/${{ env.IMAGE_NAME_LOWER }}:main-${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

@@ -73,14 +73,14 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore reSreL.sln
 
       - name: Run Snyk Dependencies Scan
         uses: snyk/actions/dotnet@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=${{ inputs.severity_threshold || 'high' }} --file=CESIZen.sln --sarif-file-output=snyk.sarif
+          args: --severity-threshold=${{ inputs.severity_threshold || 'high' }} --file=reSreL.sln --sarif-file-output=snyk.sarif
         continue-on-error: true 
       - name: Upload Snyk results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
