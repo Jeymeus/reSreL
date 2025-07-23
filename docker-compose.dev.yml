@@ -1,0 +1,6 @@
+services:
+  resrel:
+    image: ${DOCKER_REGISTRY-}resrel
+    build:
+      context: .
+      dockerfile: reSreL/Dockerfile
