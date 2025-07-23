@@ -20,7 +20,10 @@ jobs:
         run: dotnet restore reSreL.sln
 
       - name: Run dependency audit
-        run: dotnet list package --vulnerable --include-transitive
+        run: |
+          dotnet list reSreL/reSreL.csproj package --vulnerable --include-transitive
+          dotnet list reSreLData/reSreLData.csproj package --vulnerable --include-transitive  
+          dotnet list reSreLTests/reSreLTests.csproj package --vulnerable --include-transitive
 
       - name: Check for outdated packages
         run: dotnet list package --outdated
