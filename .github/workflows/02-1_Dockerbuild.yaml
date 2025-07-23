@@ -1,0 +1,122 @@
+﻿
+name: 02-1 Delivery - Docker GHCR CESIZen
+
+on:
+  workflow_call:
+    secrets:
+      SNYK_TOKEN:
+        required: false  # Optionnel pour permettre une migration progressive
+
+env:
+  REGISTRY: ghcr.io
+  USERNAME: ${{ github.actor }}
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  Build-Push-DockerGhcr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ✅ CORRECTION : Configuration des variables d'environnement pour les secrets
+      - name: Configure Environment Variables
+        run: |
+          # Configurer SNYK_TOKEN comme variable d'environnement si disponible
+          if [ -n "${{ secrets.SNYK_TOKEN }}" ]; then
+            echo "SNYK_TOKEN_AVAILABLE=true" >> $GITHUB_ENV
+            echo "✅ Snyk token configured"
+          else
+            echo "SNYK_TOKEN_AVAILABLE=false" >> $GITHUB_ENV
+            echo "⚠️ Snyk token not available - skipping Snyk scans"
+          fi
+
+      - name: Registry Login
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.USERNAME }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Downcase IMAGE Name
+        run: |
+          echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and Push CESIZen Application
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile  # ✅ Correct path pour CESIZen
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:main-${{ github.sha }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      # Security Scan 1: Trivy (toujours exécuté)
+      - name: Docker Security Scan (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      # Security Scan 2: Snyk (conditionnel)
+      # ✅ CORRECTION : Utilisation de env.SNYK_TOKEN_AVAILABLE au lieu de secrets.SNYK_TOKEN
+      - name: Docker Security Scan (Snyk)
+        if: ${{ env.SNYK_TOKEN_AVAILABLE == 'true' }}
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest'
+          args: --severity-threshold=high --file=Dockerfile --sarif-file-output=snyk-docker.sarif
+        continue-on-error: true  # Ne pas bloquer le pipeline en cas d'erreur
+
+      # ✅ CORRECTION : Utilisation de env.SNYK_TOKEN_AVAILABLE dans la condition
+      - name: Upload Snyk Docker results
+        if: ${{ env.SNYK_TOKEN_AVAILABLE == 'true' && hashFiles('snyk-docker.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
+        with:
+          sarif_file: 'snyk-docker.sarif'
+
+      - name: Build Summary
+        if: always()
+        run: |
+          echo "## 🐳 CESIZen Docker Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Application**: CESIZen" >> $GITHUB_STEP_SUMMARY
+          echo "- **Framework**: ASP.NET Core 8.0 MVC" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tags**: \`latest\`, \`main-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Port**: 8080" >> $GITHUB_STEP_SUMMARY
+          echo "- **Database**: SQL Server" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Security Scans" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Trivy**: Container vulnerability scan completed" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ env.SNYK_TOKEN_AVAILABLE }}" = "true" ]; then
+            echo "- ✅ **Snyk**: Docker security analysis completed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚠️ **Snyk**: Not configured (add SNYK_TOKEN to repository secrets to enable)" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit SHA**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Time**: $(date)" >> $GITHUB_STEP_SUMMARY

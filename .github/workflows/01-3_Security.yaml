@@ -1,0 +1,26 @@
+
+name: 01-3 - Security Analysis
+
+on:
+  workflow_call
+
+jobs:
+  DependencyCheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run dependency audit
+        run: dotnet list package --vulnerable --include-transitive
+
+      - name: Check for outdated packages
+        run: dotnet list package --outdated

@@ -1,0 +1,18 @@
+name: 01 - Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  Test_App:
+    uses: ./.github/workflows/01-1_TestApp.yaml
+
+  Security_Analysis:
+    uses: ./.github/workflows/01-3_Security.yaml
+
+  Quality_SonarQube:
+    needs: [Test_App]
+    uses: ./.github/workflows/01-2_SonarQube.yaml
+    secrets: inherit
