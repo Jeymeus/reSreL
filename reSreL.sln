@@ -14,6 +14,16 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{4008D3CD-6306-47B7-B660-02109E235783}"
+	ProjectSection(SolutionItems) = preProject
+		01-1_TestApp.yaml = 01-1_TestApp.yaml
+		01-2_SonarQube.yaml = 01-2_SonarQube.yaml
+		01-3_Security.yaml = 01-3_Security.yaml
+		01-4_Snyk.yaml = 01-4_Snyk.yaml
+		02-1_Dockerbuild.yaml = 02-1_Dockerbuild.yaml
+		02-2_Deploy.yaml = 02-2_Deploy.yaml
+		_01_integration.yaml = _01_integration.yaml
+		_02_Deploy.yaml = _02_Deploy.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
