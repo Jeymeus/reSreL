@@ -73,7 +73,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore reSreL.sln
 
       - name: Run Snyk Dependencies Scan
         uses: snyk/actions/dotnet@master

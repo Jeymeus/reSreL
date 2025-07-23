@@ -17,7 +17,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore reSreL.sln
 
       - name: Run dependency audit
         run: dotnet list package --vulnerable --include-transitive
