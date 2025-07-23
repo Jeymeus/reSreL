@@ -50,7 +50,7 @@ jobs:
           ORGANIZATION="${SONAR_ORGANIZATION --- }"
           PROJECT_KEY="${SONAR_PROJECT_KEY: --- }"
           
-          # Configuration pour CESIZen
+          # Configuration pour reSreL
           dotnet sonarscanner begin \
             /k:"$PROJECT_KEY" \
             /o:"$ORGANIZATION" \

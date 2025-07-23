@@ -1,11 +1,8 @@
 ﻿
-name: 02-1 Delivery - Docker GHCR CESIZen
+name: 02-1 Delivery - Docker GHCR reSreL
 
 on:
   workflow_call:
-    secrets:
-      SNYK_TOKEN:
-        required: false  # Optionnel pour permettre une migration progressive
 
 env:
   REGISTRY: ghcr.io
@@ -18,18 +15,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # ✅ CORRECTION : Configuration des variables d'environnement pour les secrets
-      - name: Configure Environment Variables
-        run: |
-          # Configurer SNYK_TOKEN comme variable d'environnement si disponible
-          if [ -n "${{ secrets.SNYK_TOKEN }}" ]; then
-            echo "SNYK_TOKEN_AVAILABLE=true" >> $GITHUB_ENV
-            echo "✅ Snyk token configured"
-          else
-            echo "SNYK_TOKEN_AVAILABLE=false" >> $GITHUB_ENV
-            echo "⚠️ Snyk token not available - skipping Snyk scans"
-          fi
 
       - name: Registry Login
         uses: docker/login-action@v3
@@ -52,11 +37,11 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and Push CESIZen Application
+      - name: Build and Push reSreL Application
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile  # ✅ Correct path pour CESIZen
+          file: ./Dockerfile  # ✅ Correct path pour reSreL
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest
@@ -77,31 +62,11 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-      # Security Scan 2: Snyk (conditionnel)
-      # ✅ CORRECTION : Utilisation de env.SNYK_TOKEN_AVAILABLE au lieu de secrets.SNYK_TOKEN
-      - name: Docker Security Scan (Snyk)
-        if: ${{ env.SNYK_TOKEN_AVAILABLE == 'true' }}
-        uses: snyk/actions/docker@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          image: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest'
-          args: --severity-threshold=high --file=Dockerfile --sarif-file-output=snyk-docker.sarif
-        continue-on-error: true  # Ne pas bloquer le pipeline en cas d'erreur
-
-      # ✅ CORRECTION : Utilisation de env.SNYK_TOKEN_AVAILABLE dans la condition
-      - name: Upload Snyk Docker results
-        if: ${{ env.SNYK_TOKEN_AVAILABLE == 'true' && hashFiles('snyk-docker.sarif') != '' }}
-        uses: github/codeql-action/upload-sarif@v3
-        continue-on-error: true
-        with:
-          sarif_file: 'snyk-docker.sarif'
-
       - name: Build Summary
         if: always()
         run: |
-          echo "## 🐳 CESIZen Docker Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Application**: CESIZen" >> $GITHUB_STEP_SUMMARY
+          echo "## 🐳 reSreL Docker Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Application**: reSreL" >> $GITHUB_STEP_SUMMARY
           echo "- **Framework**: ASP.NET Core 8.0 MVC" >> $GITHUB_STEP_SUMMARY
           echo "- **Image**: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Tags**: \`latest\`, \`main-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
