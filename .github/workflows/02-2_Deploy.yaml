@@ -1,5 +1,4 @@
-﻿
-name: 02-2 - Deploy reSreL
+﻿name: 02-2 - Deploy reSreL
 
 on:
   workflow_call:
@@ -54,7 +53,6 @@ jobs:
           username: ${{ secrets.AZURE_LOGIN }}
           port: ${{ secrets.AZURE_PORT }}
           password: ${{ secrets.AZURE_PWD }}
-
           script: |
             cd /opt/reSreL
             
@@ -67,56 +65,36 @@ jobs:
             docker pull $NEW_IMAGE
             
             # Mettre à jour l'image dans le docker-compose.yml
-            sed -i " --- " docker-compose.yml
+            sed -i "s|ghcr.io/jeymeus/resrel:latest|$NEW_IMAGE|g" docker-compose.yml
             
-            # CORRECTION: Nettoyer le réseau existant problématique
+            # Nettoyer le réseau existant problématique
             echo "Cleaning up existing network..."
             docker network rm reSreL-network 2>/dev/null || true
             
             # Arrêter les anciens conteneurs
             echo "Stopping existing containers..."
-            if command -v "docker compose" >/dev/null 2>&1; then
-              docker compose down || true
-            else
-              docker compose down || true
-            fi
+            docker compose down || true
             
-            # Déploiement Canary (10% du trafic)
-            echo "🚀 Starting canary deployment for reSreL..."
-            
-            # Lancer les services avec docker compose
-            if command -v "docker compose" >/dev/null 2>&1; then
-              docker compose up -d
-            else
-              docker compose up -d
-            fi        
-          
+            # Déploiement
+            echo "🚀 Starting deployment for reSreL..."
+            docker compose up -d
             
             # Test de connectivité final
             echo "Testing application connectivity..."
             for i in {1..6}; do
               if curl -f http://localhost:8080/ > /dev/null 2>&1; then
-                echo "Full deployment successful!"
+                echo "Deployment successful!"
                 break
               fi
               
               if [ $i -eq 6 ]; then
                 echo "Deployment failed!"
-                echo "Debugging information:"
                 echo "Container status:"
                 docker ps --filter "name=reSreL" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
                 echo "Application logs:"
                 docker logs reSreL_app --tail=20 || true
                 echo "Database logs:"
                 docker logs reSreL_database --tail=20 || true
-                
-                # CORRECTION: Essayer de redémarrer avec docker-compose en fallback (sans nom de service inexistant)
-                echo "Attempting fallback restart..."
-                if command -v "docker compose" >/dev/null 2>&1; then
-                  docker compose restart || exit 1
-                else
-                  docker compose restart || exit 1
-                fi
                 exit 1
               fi
               
@@ -128,6 +106,26 @@ jobs:
             docker image prune -f
             
             echo "🚀 reSreL deployment completed successfully!"
+
+      - name: Debug on Failure
+        if: failure()
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_LOGIN }}
+          port: ${{ secrets.AZURE_PORT }}
+          password: ${{ secrets.AZURE_PWD }}
+          script: |
+            cd /opt/reSreL
+            echo "=== Debug Information ==="
+            echo "Container status:"
+            docker ps -a
+            echo "=== SQL Server logs ==="
+            docker logs reSreL_database || echo "No database logs"
+            echo "=== App logs ==="
+            docker logs reSreL_app || echo "No app logs"
+            echo "=== Docker compose file ==="
+            cat docker-compose.yml
 
       - name: Deployment Summary
         if: always()
