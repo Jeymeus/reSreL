@@ -1,0 +1,23 @@
+name: 02 - Deploy
+
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  SnykSecurity:
+    uses: ./.github/workflows/01-4_Snyk.yaml
+    with:
+      scan_type: 'dependencies' 
+    secrets: inherit
+
+#  Dockerbuild:
+#    needs: [SnykSecurity] 
+#    uses: ./.github/workflows/02-1_Dockerbuild.yaml
+#    secrets: inherit
+
+  Deploy:
+    needs: [Dockerbuild]
+    uses: ./.github/workflows/02-2_Deploy.yaml
+    secrets: inherit

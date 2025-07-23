@@ -1,0 +1,66 @@
+
+name: 01-2 - Integration SonarQube
+
+on:
+  workflow_call
+
+jobs:
+  QualityDotNet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup Java (required for SonarCloud)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download Coverage Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dotnet-coverage-report
+          path: ./coverage
+        continue-on-error: true  
+
+      - name: Install SonarCloud scanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+        run: |
+         
+          # Configuration avec les valeurs de SonarCloud
+          ORGANIZATION="${SONAR_ORGANIZATION --- }"
+          PROJECT_KEY="${SONAR_PROJECT_KEY: --- }"
+          
+          # Configuration pour CESIZen
+          dotnet sonarscanner begin \
+            /k:"$PROJECT_KEY" \
+            /o:"$ORGANIZATION" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.opencover.reportsPaths="coverage/**/coverage.opencover.xml" \
+            /d:sonar.exclusions="**/bin/**,**/obj/**,**/*.js,**/*.css,**/wwwroot/lib/**" \
+            /d:sonar.coverage.exclusions="**/Program.cs,**/Startup.cs,**/Migrations/**,**/Tests/**" \
+            /d:sonar.scanner.skipJreProvisioning=false
+          
+          dotnet build --configuration Release --no-restore
+          
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"

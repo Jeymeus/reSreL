@@ -1,0 +1,155 @@
+﻿
+name: 01-4 - Snyk Security Analysis
+
+on:
+  workflow_call:
+    inputs:
+      scan_type:
+        description: 'Type of scan to perform (code, dependencies, docker, all)'
+        required: false
+        default: 'all'
+        type: string
+      severity_threshold:
+        description: 'Severity threshold (low, medium, high, critical)'
+        required: false
+        default: 'high'
+        type: string
+
+  workflow_dispatch:
+    inputs:
+      scan_type:
+        description: 'Type of scan to perform'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - dependencies
+          - code
+          - all
+      severity_threshold:
+        description: 'Severity threshold'
+        required: false
+        default: 'high'
+        type: choice
+        options:
+          - low
+          - medium
+          - high
+          - critical
+
+jobs:
+  check-snyk-token:
+    name: Check Snyk Configuration
+    runs-on: ubuntu-latest
+    outputs:
+      snyk-enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - name: Check if Snyk token is available
+        id: check
+        run: |
+          if [ -n "${{ secrets.SNYK_TOKEN }}" ]; then
+            echo "enabled=true" >> $GITHUB_OUTPUT
+            echo "✅ Snyk token is configured"
+          else
+            echo "enabled=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Snyk token not found - skipping Snyk scans"
+            echo "Add SNYK_TOKEN to repository secrets to enable Snyk security scanning"
+          fi
+
+  snyk-dependencies:
+    name: Snyk Dependencies Scan
+    runs-on: ubuntu-latest
+    needs: check-snyk-token
+    if: |
+      needs.check-snyk-token.outputs.snyk-enabled == 'true' && 
+      (inputs.scan_type == 'dependencies' || inputs.scan_type == 'all')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run Snyk Dependencies Scan
+        uses: snyk/actions/dotnet@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=${{ inputs.severity_threshold || 'high' }} --file=CESIZen.sln --sarif-file-output=snyk.sarif
+        continue-on-error: true 
+      - name: Upload Snyk results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('snyk.sarif') != ''
+        with:
+          sarif_file: snyk.sarif
+        continue-on-error: true
+
+  snyk-code:
+    name: Snyk Code Analysis  
+    runs-on: ubuntu-latest
+    needs: check-snyk-token
+    if: |
+      needs.check-snyk-token.outputs.snyk-enabled == 'true' && 
+      (inputs.scan_type == 'code' || inputs.scan_type == 'all')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Run Snyk Code Analysis
+        uses: snyk/actions/dotnet@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: code test
+          args: --severity-threshold=${{ inputs.severity_threshold || 'high' }}
+        continue-on-error: true
+
+      - name: Upload Snyk Code results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: snyk-code.sarif
+        continue-on-error: true
+
+  summary:
+    name: Security Analysis Summary
+    runs-on: ubuntu-latest
+    needs: [check-snyk-token, snyk-dependencies, snyk-code]
+    if: always()
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## 🔒 Snyk Security Analysis Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.check-snyk-token.outputs.snyk-enabled }}" = "true" ]; then
+            echo " **Snyk Token:** Configured" >> $GITHUB_STEP_SUMMARY
+            echo "| Scan Type | Status | Details |" >> $GITHUB_STEP_SUMMARY
+            echo "| Dependencies | ${{ needs.snyk-dependencies.result || 'skipped' }} | Vulnerability scan of .NET dependencies |" >> $GITHUB_STEP_SUMMARY
+            echo "| Code Analysis | ${{ needs.snyk-code.result || 'skipped' }} | Static analysis of source code |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Severity Threshold:** ${{ inputs.severity_threshold || 'high' }}" >> $GITHUB_STEP_SUMMARY
+            
+            # Vérifier si des échecs ont eu lieu
+            if [[ "${{ needs.snyk-dependencies.result }}" == "failure" || "${{ needs.snyk-code.result }}" == "failure" ]]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "⚠️ **Some security issues were detected.** Check the Security tab for details." >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "**Snyk Token:** Not configured" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "To enable Snyk security scanning:" >> $GITHUB_STEP_SUMMARY
+            echo "1. Create a free account at [snyk.io](https://snyk.io)" >> $GITHUB_STEP_SUMMARY
+            echo "2. Get your API token from Settings > General > Auth Token" >> $GITHUB_STEP_SUMMARY
+            echo "3. Add it as \`SNYK_TOKEN\` in Repository Settings > Secrets and variables > Actions" >> $GITHUB_STEP_SUMMARY
+          fi

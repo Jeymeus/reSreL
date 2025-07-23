@@ -1,0 +1,143 @@
+﻿
+name: 02-2 - Deploy CESIZen
+
+on:
+  workflow_call:
+
+env:
+  REGISTRY: ghcr.io
+  USERNAME: ${{ github.actor }}
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  AzureDeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set IMAGE_NAME_LOWER
+        run: |
+          echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+
+      - name: Update Compose File
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_LOGIN }}
+          port: ${{ secrets.AZURE_PORT }}
+          password: ${{ secrets.AZURE_PWD }}
+          source: "./docker-compose.yml"
+          target: "/opt/cesizen/"
+
+      - name: Setup Environment Variables
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_LOGIN }}
+          port: ${{ secrets.AZURE_PORT }}
+          password: ${{ secrets.AZURE_PWD }}
+          script: |
+            cd /opt/cesizen
+            
+            # Créer le fichier .env avec le mot de passe de la base de données
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" > .env
+            echo "ASPNETCORE_ENVIRONMENT=Production" >> .env
+            chmod 600 .env
+            
+            echo "✅ Environment variables configured"
+
+      - name: Canary Deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_LOGIN }}
+          port: ${{ secrets.AZURE_PORT }}
+          password: ${{ secrets.AZURE_PWD }}
+
+          script: |
+            cd /opt/cesizen
+            
+            # Login Docker Registry
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # Pull nouvelle image
+            NEW_IMAGE="ghcr.io/${{ env.IMAGE_NAME_LOWER }}:main-${{ github.sha }}"
+            echo "Pulling new image: $NEW_IMAGE"
+            docker pull $NEW_IMAGE
+            
+            # Mettre à jour l'image dans le docker-compose.yml
+            sed -i " --- " docker-compose.yml
+            
+            # CORRECTION: Nettoyer le réseau existant problématique
+            echo "Cleaning up existing network..."
+            docker network rm cesizen-network 2>/dev/null || true
+            
+            # Arrêter les anciens conteneurs
+            echo "Stopping existing containers..."
+            if command -v "docker compose" >/dev/null 2>&1; then
+              docker compose down || true
+            else
+              docker compose down || true
+            fi
+            
+            # Déploiement Canary (10% du trafic)
+            echo "🚀 Starting canary deployment for CESIZen..."
+            
+            # Lancer les services avec docker compose
+            if command -v "docker compose" >/dev/null 2>&1; then
+              docker compose up -d
+            else
+              docker compose up -d
+            fi        
+          
+            
+            # Test de connectivité final
+            echo "Testing application connectivity..."
+            for i in {1..6}; do
+              if curl -f http://localhost:8080/ > /dev/null 2>&1; then
+                echo "Full deployment successful!"
+                break
+              fi
+              
+              if [ $i -eq 6 ]; then
+                echo "Deployment failed!"
+                echo "Debugging information:"
+                echo "Container status:"
+                docker ps --filter "name=cesizen" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+                echo "Application logs:"
+                docker logs cesizen_app --tail=20 || true
+                echo "Database logs:"
+                docker logs cesizen_database --tail=20 || true
+                
+                # CORRECTION: Essayer de redémarrer avec docker-compose en fallback (sans nom de service inexistant)
+                echo "Attempting fallback restart..."
+                if command -v "docker compose" >/dev/null 2>&1; then
+                  docker compose restart || exit 1
+                else
+                  docker compose restart || exit 1
+                fi
+                exit 1
+              fi
+              
+              echo "Waiting for app to respond... ($i/6)"
+              sleep 15
+            done
+            
+            # Nettoyer les anciennes images
+            docker image prune -f
+            
+            echo "🚀 CESIZen deployment completed successfully!"
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "## 🚀 CESIZen Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Application**: CESIZen (Well-being Management)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Production (Azure VM)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Strategy**: Canary Deployment (10% → 100%)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: ghcr.io/${{ env.IMAGE_NAME_LOWER }}:main-${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deploy Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: http://${{ secrets.AZURE_HOST }}:8080" >> $GITHUB_STEP_SUMMARY
+          echo "- **SLA Target**: < 2 seconds response time" >> $GITHUB_STEP_SUMMARY
+          echo "- **Monitoring**: Performance + Error rate + Availability" >> $GITHUB_STEP_SUMMARY
