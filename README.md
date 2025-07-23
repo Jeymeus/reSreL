@@ -105,14 +105,3 @@ dotnet build
 dotnet run
 Naviguez sur http://localhost:5000 une fois l'application démarrée.
 
-## 🤝 Contributions
-Les contributions sont les bienvenues. Merci de :
-
-Ouvrir une issue
-
-Créer une branche feature/xxx
-
-Soumettre une PR avec description claire
-
-📄 Licence
-Projet sous licence MIT – libre d'utilisation avec attribution.
