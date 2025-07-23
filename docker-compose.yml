@@ -1,6 +1,52 @@
+version: '3.8'
+
 services:
-  resrel:
-    image: ${DOCKER_REGISTRY-}resrel
-    build:
-      context: .
-      dockerfile: reSreL/Dockerfile
+  resrel-database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: reSreL_database
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${DB_PASSWORD}
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./data/sqlserver:/var/opt/mssql/data
+    networks:
+      - reSreL-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  resrel-app:
+    image: ghcr.io/jeymeus/resrel:latest
+    container_name: reSreL_app
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
+      - ConnectionStrings__DefaultConnection=Server=resrel-database,1433;Database=reSreLDB;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=true;
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+    depends_on:
+      resrel-database:
+        condition: service_healthy
+    networks:
+      - reSreL-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  reSreL-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
