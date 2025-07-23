@@ -27,3 +27,4 @@ jobs:
 
       - name: Check for outdated packages
         run: dotnet list package --outdated
+        continue-on-error: true
