@@ -47,85 +47,86 @@ jobs:
             echo "✅ Environment variables configured"
 
       - name: Canary Deployment
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.AZURE_HOST }}
-          username: ${{ secrets.AZURE_LOGIN }}
-          port: ${{ secrets.AZURE_PORT }}
-          password: ${{ secrets.AZURE_PWD }}
-          script: |
-            cd /opt/reSreL
+        run: echo "ok"
+        # uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.AZURE_HOST }}
+      #     username: ${{ secrets.AZURE_LOGIN }}
+      #     port: ${{ secrets.AZURE_PORT }}
+      #     password: ${{ secrets.AZURE_PWD }}
+      #     script: |
+      #       cd /opt/reSreL
             
-            # Login Docker Registry
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      #       # Login Docker Registry
+      #       echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # Pull nouvelle image
-            NEW_IMAGE="ghcr.io/${{ env.IMAGE_NAME_LOWER }}:main-${{ github.sha }}"
-            echo "Pulling new image: $NEW_IMAGE"
-            docker pull $NEW_IMAGE
+      #       # Pull nouvelle image
+      #       NEW_IMAGE="ghcr.io/${{ env.IMAGE_NAME_LOWER }}:main-${{ github.sha }}"
+      #       echo "Pulling new image: $NEW_IMAGE"
+      #       docker pull $NEW_IMAGE
             
-            # Mettre à jour l'image dans le docker-compose.yml
-            sed -i "s|ghcr.io/jeymeus/resrel:latest|$NEW_IMAGE|g" docker-compose.yml
+      #       # Mettre à jour l'image dans le docker-compose.yml
+      #       sed -i "s|ghcr.io/jeymeus/resrel:latest|$NEW_IMAGE|g" docker-compose.yml
             
-            # Nettoyer le réseau existant problématique
-            echo "Cleaning up existing network..."
-            docker network rm reSreL-network 2>/dev/null || true
+      #       # Nettoyer le réseau existant problématique
+      #       echo "Cleaning up existing network..."
+      #       docker network rm reSreL-network 2>/dev/null || true
             
-            # Arrêter les anciens conteneurs
-            echo "Stopping existing containers..."
-            docker compose down || true
+      #       # Arrêter les anciens conteneurs
+      #       echo "Stopping existing containers..."
+      #       docker compose down || true
             
-            # Déploiement
-            echo "🚀 Starting deployment for reSreL..."
-            docker compose up -d
+      #       # Déploiement
+      #       echo "🚀 Starting deployment for reSreL..."
+      #       docker compose up -d
             
-            # Test de connectivité final
-            echo "Testing application connectivity..."
-            for i in {1..6}; do
-              if curl -f http://localhost:8080/ > /dev/null 2>&1; then
-                echo "Deployment successful!"
-                break
-              fi
+      #       # Test de connectivité final
+      #       echo "Testing application connectivity..."
+      #       for i in {1..6}; do
+      #         if curl -f http://localhost:8080/ > /dev/null 2>&1; then
+      #           echo "Deployment successful!"
+      #           break
+      #         fi
               
-              if [ $i -eq 6 ]; then
-                echo "Deployment failed!"
-                echo "Container status:"
-                docker ps --filter "name=reSreL" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-                echo "Application logs:"
-                docker logs reSreL_app --tail=20 || true
-                echo "Database logs:"
-                docker logs reSreL_database --tail=20 || true
-                exit 1
-              fi
+      #         if [ $i -eq 6 ]; then
+      #           echo "Deployment failed!"
+      #           echo "Container status:"
+      #           docker ps --filter "name=reSreL" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+      #           echo "Application logs:"
+      #           docker logs reSreL_app --tail=20 || true
+      #           echo "Database logs:"
+      #           docker logs reSreL_database --tail=20 || true
+      #           exit 1
+      #         fi
               
-              echo "Waiting for app to respond... ($i/6)"
-              sleep 15
-            done
+      #         echo "Waiting for app to respond... ($i/6)"
+      #         sleep 15
+      #       done
             
-            # Nettoyer les anciennes images
-            docker image prune -f
+      #       # Nettoyer les anciennes images
+      #       docker image prune -f
             
-            echo "🚀 reSreL deployment completed successfully!"
+      #       echo "🚀 reSreL deployment completed successfully!"
 
-      - name: Debug on Failure
-        if: failure()
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.AZURE_HOST }}
-          username: ${{ secrets.AZURE_LOGIN }}
-          port: ${{ secrets.AZURE_PORT }}
-          password: ${{ secrets.AZURE_PWD }}
-          script: |
-            cd /opt/reSreL
-            echo "=== Debug Information ==="
-            echo "Container status:"
-            docker ps -a
-            echo "=== SQL Server logs ==="
-            docker logs reSreL_database || echo "No database logs"
-            echo "=== App logs ==="
-            docker logs reSreL_app || echo "No app logs"
-            echo "=== Docker compose file ==="
-            cat docker-compose.yml
+      # - name: Debug on Failure
+      #   if: failure()
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.AZURE_HOST }}
+      #     username: ${{ secrets.AZURE_LOGIN }}
+      #     port: ${{ secrets.AZURE_PORT }}
+      #     password: ${{ secrets.AZURE_PWD }}
+      #     script: |
+      #       cd /opt/reSreL
+      #       echo "=== Debug Information ==="
+      #       echo "Container status:"
+      #       docker ps -a
+      #       echo "=== SQL Server logs ==="
+      #       docker logs reSreL_database || echo "No database logs"
+      #       echo "=== App logs ==="
+      #       docker logs reSreL_app || echo "No app logs"
+      #       echo "=== Docker compose file ==="
+      #       cat docker-compose.yml
 
       - name: Deployment Summary
         if: always()
