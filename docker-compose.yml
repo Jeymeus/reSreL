@@ -11,12 +11,12 @@ services:
     ports:
       - "1433:1433"
     volumes:
-      - ./data/sqlserver:/var/opt/mssql/data
+      - sqlserver-data:/var/opt/mssql/data
     networks:
       - reSreL-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "sleep 30"]
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P '${DB_PASSWORD}' -Q 'SELECT 1'"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -39,7 +39,7 @@ services:
       - reSreL-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
